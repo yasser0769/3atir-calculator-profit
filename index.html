@@ -1,0 +1,1440 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>داشبورد الأرباح - عاطر</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --surface: #111827;
+    --surface2: #1a2235;
+    --border: #1e2d45;
+    --accent: #00d4aa;
+    --accent2: #0ea5e9;
+    --accent3: #f59e0b;
+    --red: #ef4444;
+    --green: #10b981;
+    --text: #e2e8f0;
+    --text2: #94a3b8;
+    --text3: #64748b;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { 
+    font-family: 'Tajawal', sans-serif; 
+    background: var(--bg); 
+    color: var(--text); 
+    min-height: 100vh;
+    direction: rtl;
+  }
+  
+  /* HEADER */
+  .header {
+    background: linear-gradient(135deg, #0a0e1a 0%, #0f172a 50%, #0a1628 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 0 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 70px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(10px);
+  }
+  .logo { display: flex; align-items: center; gap: 12px; }
+  .logo-icon {
+    width: 42px; height: 42px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; font-weight: 900; color: #0a0e1a;
+  }
+  .logo-text { font-size: 22px; font-weight: 800; }
+  .logo-sub { font-size: 12px; color: var(--text2); }
+  .header-actions { display: flex; gap: 10px; }
+  .btn-settings {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px 18px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-family: 'Tajawal', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    display: flex; align-items: center; gap: 7px;
+    transition: all 0.2s;
+  }
+  .btn-settings:hover { border-color: var(--accent); color: var(--accent); }
+  
+  /* UPLOAD ZONE */
+  .upload-section {
+    padding: 40px 32px 0;
+  }
+  .upload-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  .upload-card {
+    background: var(--surface);
+    border: 2px dashed var(--border);
+    border-radius: 16px;
+    padding: 32px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+  .upload-card::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, transparent 60%, rgba(0,212,170,0.03));
+    transition: opacity 0.3s;
+  }
+  .upload-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .upload-card.loaded { border-color: var(--green); border-style: solid; }
+  .upload-icon { font-size: 40px; margin-bottom: 12px; }
+  .upload-title { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+  .upload-sub { font-size: 13px; color: var(--text2); }
+  .upload-status { 
+    margin-top: 12px; font-size: 13px; font-weight: 600;
+    color: var(--green); display: none;
+  }
+  .upload-card.loaded .upload-status { display: block; }
+  .file-input { display: none; }
+  .process-btn {
+    display: block;
+    margin: 24px auto 0;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #0a0e1a;
+    border: none;
+    padding: 14px 48px;
+    border-radius: 12px;
+    font-family: 'Tajawal', sans-serif;
+    font-size: 16px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.3s;
+    opacity: 0.5;
+    pointer-events: none;
+  }
+  .process-btn.ready { opacity: 1; pointer-events: auto; }
+  .process-btn.ready:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,212,170,0.3); }
+
+  /* DASHBOARD */
+  #dashboard { display: none; padding: 28px 32px 40px; }
+  
+  /* FILTERS */
+  .filter-bar {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 16px 24px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .filter-label { font-size: 13px; color: var(--text2); font-weight: 600; white-space: nowrap; }
+  .filter-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text2);
+    padding: 7px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: 'Tajawal', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .filter-btn:hover, .filter-btn.active { 
+    border-color: var(--accent); color: var(--accent);
+    background: rgba(0,212,170,0.08);
+  }
+  .date-inputs { display: flex; align-items: center; gap: 8px; }
+  .date-input {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 7px 12px;
+    border-radius: 8px;
+    font-family: 'Tajawal', sans-serif;
+    font-size: 13px;
+  }
+  .date-input:focus { outline: none; border-color: var(--accent); }
+  .filter-sep { width: 1px; height: 24px; background: var(--border); }
+  
+  /* KPI CARDS */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .kpi-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 22px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s;
+  }
+  .kpi-card:hover { transform: translateY(-2px); }
+  .kpi-card::after {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    opacity: 0.08;
+    transform: translate(20px, -20px);
+  }
+  .kpi-card.green::after { background: var(--green); }
+  .kpi-card.blue::after { background: var(--accent2); }
+  .kpi-card.amber::after { background: var(--accent3); }
+  .kpi-card.red::after { background: var(--red); }
+  .kpi-label { font-size: 12px; color: var(--text3); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+  .kpi-value { font-size: 28px; font-weight: 800; line-height: 1; margin-bottom: 8px; }
+  .kpi-card.green .kpi-value { color: var(--green); }
+  .kpi-card.blue .kpi-value { color: var(--accent2); }
+  .kpi-card.amber .kpi-value { color: var(--accent3); }
+  .kpi-card.red .kpi-value { color: var(--red); }
+  .kpi-sub { font-size: 12px; color: var(--text3); }
+  .kpi-badge { 
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 700;
+  }
+  .kpi-badge.up { background: rgba(16,185,129,0.15); color: var(--green); }
+  .kpi-badge.down { background: rgba(239,68,68,0.15); color: var(--red); }
+  
+  /* CHARTS ROW */
+  .charts-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .chart-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+  }
+  .chart-header { 
+    display: flex; align-items: center; justify-content: space-between; 
+    margin-bottom: 20px;
+  }
+  .chart-title { font-size: 15px; font-weight: 700; }
+  .chart-sub { font-size: 12px; color: var(--text3); margin-top: 2px; }
+  .chart-toggle { display: flex; gap: 6px; }
+  .chart-toggle-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text3);
+    padding: 5px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: 'Tajawal', sans-serif;
+    font-size: 12px;
+    transition: all 0.2s;
+  }
+  .chart-toggle-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(0,212,170,0.08); }
+  
+  /* SECOND ROW */
+  .second-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  /* TABLE */
+  .table-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    overflow: hidden;
+  }
+  .table-scroll { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead th {
+    padding: 10px 14px;
+    text-align: right;
+    color: var(--text3);
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  tbody tr { border-bottom: 1px solid rgba(30,45,69,0.5); transition: background 0.15s; }
+  tbody tr:hover { background: var(--surface2); }
+  tbody tr:last-child { border-bottom: none; }
+  tbody td { padding: 11px 14px; color: var(--text2); white-space: nowrap; }
+  tbody td:first-child { color: var(--text); font-weight: 500; }
+  .profit-cell { font-weight: 700; }
+  .profit-pos { color: var(--green); }
+  .profit-neg { color: var(--red); }
+  .payment-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .pm-mada { background: rgba(0,212,170,0.12); color: var(--accent); }
+  .pm-credit { background: rgba(14,165,233,0.12); color: var(--accent2); }
+  .pm-tabby { background: rgba(245,158,11,0.12); color: var(--accent3); }
+  .pm-tamara { background: rgba(139,92,246,0.12); color: #a78bfa; }
+  .pm-apple { background: rgba(255,255,255,0.08); color: #cbd5e1; }
+  .pm-other { background: rgba(100,116,139,0.12); color: var(--text3); }
+  
+  /* SETTINGS MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    width: 560px;
+    max-height: 85vh;
+    overflow-y: auto;
+    padding: 32px;
+    position: relative;
+  }
+  .modal-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 28px;
+  }
+  .modal-title { font-size: 20px; font-weight: 800; }
+  .modal-close {
+    background: var(--surface2); border: 1px solid var(--border);
+    color: var(--text2); width: 36px; height: 36px; border-radius: 10px;
+    cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+  }
+  .modal-close:hover { border-color: var(--red); color: var(--red); }
+  .settings-section { margin-bottom: 24px; }
+  .settings-section-title { 
+    font-size: 13px; font-weight: 700; color: var(--accent); 
+    text-transform: uppercase; letter-spacing: 0.5px;
+    margin-bottom: 14px; padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  .settings-row {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .settings-label { font-size: 14px; color: var(--text2); }
+  .settings-input-wrap { display: flex; align-items: center; gap: 6px; }
+  .settings-input {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-family: 'Tajawal', sans-serif;
+    font-size: 14px;
+    width: 90px;
+    text-align: center;
+    transition: border-color 0.2s;
+  }
+  .settings-input:focus { outline: none; border-color: var(--accent); }
+  .settings-unit { font-size: 13px; color: var(--text3); }
+  .save-btn {
+    width: 100%;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #0a0e1a;
+    border: none;
+    padding: 13px;
+    border-radius: 12px;
+    font-family: 'Tajawal', sans-serif;
+    font-size: 15px;
+    font-weight: 800;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: all 0.3s;
+  }
+  .save-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(0,212,170,0.3); }
+
+  /* LOADING */
+  .loading {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(10,14,26,0.9);
+    z-index: 300;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .loading.show { display: flex; }
+  .spinner {
+    width: 48px; height: 48px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-text { font-size: 16px; color: var(--text2); font-weight: 500; }
+
+  /* EMPTY STATE */
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text3);
+  }
+  .empty-state-icon { font-size: 48px; margin-bottom: 16px; }
+  .empty-state-text { font-size: 15px; }
+
+  /* RESPONSIVE */
+  @media (max-width: 1100px) {
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    .charts-row { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 700px) {
+    .upload-grid { grid-template-columns: 1fr; }
+    .second-row { grid-template-columns: 1fr; }
+    .header { padding: 0 16px; }
+    #dashboard { padding: 16px; }
+    .upload-section { padding: 20px 16px 0; }
+  }
+
+  /* SUMMARY STATS in second row */
+  .payment-breakdown { }
+  .pb-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(30,45,69,0.5);
+  }
+  .pb-item:last-child { border-bottom: none; }
+  .pb-name { display: flex; align-items: center; gap: 10px; font-size: 14px; }
+  .pb-dot { width: 10px; height: 10px; border-radius: 3px; }
+  .pb-stats { text-align: left; }
+  .pb-amount { font-size: 14px; font-weight: 700; }
+  .pb-fee { font-size: 11px; color: var(--text3); }
+
+  .stat-mini-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .stat-mini {
+    background: var(--surface2);
+    border-radius: 12px;
+    padding: 16px;
+    border: 1px solid var(--border);
+  }
+  .stat-mini-label { font-size: 11px; color: var(--text3); margin-bottom: 6px; }
+  .stat-mini-value { font-size: 18px; font-weight: 800; color: var(--text); }
+
+  .tab-nav { display: flex; gap: 8px; margin-bottom: 20px; }
+  .tab-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text3);
+    padding: 7px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: 'Tajawal', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+  .tab-btn.active { background: rgba(0,212,170,0.1); border-color: var(--accent); color: var(--accent); }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+</style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div class="loading" id="loading">
+  <div class="spinner"></div>
+  <div class="loading-text">جاري معالجة البيانات...</div>
+</div>
+
+<!-- SETTINGS MODAL -->
+<div class="modal-overlay" id="settingsModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">⚙️ الإعدادات المتقدمة</div>
+      <button class="modal-close" onclick="closeSettings()">✕</button>
+    </div>
+    
+    <div class="settings-section">
+      <div class="settings-section-title">💳 رسوم بوابات الدفع (Salla)</div>
+      <div class="settings-row">
+        <span class="settings-label">مدى (Mada)</span>
+        <div class="settings-input-wrap">
+          <input class="settings-input" id="fee_mada" type="number" step="0.01" value="1.7">
+          <span class="settings-unit">%</span>
+        </div>
+      </div>
+      <div class="settings-row">
+        <span class="settings-label">بطاقة ائتمانية (Visa/MC)</span>
+        <div class="settings-input-wrap">
+          <input class="settings-input" id="fee_credit" type="number" step="0.01" value="2.6">
+          <span class="settings-unit">%</span>
+        </div>
+      </div>
+      <div class="settings-row">
+        <span class="settings-label">تابي (Tabby)</span>
+        <div class="settings-input-wrap">
+          <input class="settings-input" id="fee_tabby" type="number" step="0.01" value="5.17">
+          <span class="settings-unit">%</span>
+        </div>
+      </div>
+      <div class="settings-row">
+        <span class="settings-label">تمارا (Tamara)</span>
+        <div class="settings-input-wrap">
+          <input class="settings-input" id="fee_tamara" type="number" step="0.01" value="2.95">
+          <span class="settings-unit">%</span>
+        </div>
+      </div>
+      <div class="settings-row">
+        <span class="settings-label">Apple Pay</span>
+        <div class="settings-input-wrap">
+          <input class="settings-input" id="fee_applepay" type="number" step="0.01" value="2.6">
+          <span class="settings-unit">%</span>
+        </div>
+      </div>
+      <div class="settings-row">
+        <span class="settings-label">الدفع عند الاستلام</span>
+        <div class="settings-input-wrap">
+          <input class="settings-input" id="fee_cod" type="number" step="0.01" value="0">
+          <span class="settings-unit">%</span>
+        </div>
+      </div>
+      <div class="settings-row">
+        <span class="settings-label">STC Pay</span>
+        <div class="settings-input-wrap">
+          <input class="settings-input" id="fee_stc" type="number" step="0.01" value="1.7">
+          <span class="settings-unit">%</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-section-title">🌍 رسوم FragranceX</div>
+      <div class="settings-row">
+        <span class="settings-label">رسوم بطاقة الائتمان (FX)</span>
+        <div class="settings-input-wrap">
+          <input class="settings-input" id="fee_fx_card" type="number" step="0.01" value="2.3">
+          <span class="settings-unit">%</span>
+        </div>
+      </div>
+      <div class="settings-row">
+        <span class="settings-label">سعر الصرف (USD → SAR)</span>
+        <div class="settings-input-wrap">
+          <input class="settings-input" id="usd_sar" type="number" step="0.01" value="3.75">
+          <span class="settings-unit">SAR</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-section-title">📦 تكاليف أخرى</div>
+      <div class="settings-row">
+        <span class="settings-label">ضريبة القيمة المضافة</span>
+        <div class="settings-input-wrap">
+          <input class="settings-input" id="vat_rate" type="number" step="0.01" value="15">
+          <span class="settings-unit">%</span>
+        </div>
+      </div>
+      <div class="settings-row">
+        <span class="settings-label">تكلفة الشحن المحلي الثابتة</span>
+        <div class="settings-input-wrap">
+          <input class="settings-input" id="local_shipping" type="number" step="0.01" value="32">
+          <span class="settings-unit">SAR</span>
+        </div>
+      </div>
+    </div>
+
+    <button class="save-btn" onclick="saveSettings()">💾 حفظ وإعادة الحساب</button>
+  </div>
+</div>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="logo">
+    <div class="logo-icon">ع</div>
+    <div>
+      <div class="logo-text">عاطر داشبورد</div>
+      <div class="logo-sub">حاسبة الأرباح الذكية</div>
+    </div>
+  </div>
+  <div class="header-actions">
+    <button class="btn-settings" onclick="openSettings()">⚙️ الإعدادات المتقدمة</button>
+  </div>
+</div>
+
+<!-- UPLOAD SECTION -->
+<div class="upload-section" id="uploadSection">
+  <div style="text-align:center; margin-bottom: 28px;">
+    <h2 style="font-size:26px; font-weight:800; margin-bottom:8px;">رفع ملفات البيانات</h2>
+    <p style="color:var(--text2); font-size:15px;">ارفع ملف Salla وملف FragranceX لحساب الأرباح تلقائياً</p>
+  </div>
+  <div class="upload-grid">
+    <div class="upload-card" id="sallaCard" onclick="document.getElementById('sallaInput').click()">
+      <input type="file" class="file-input" id="sallaInput" accept=".xls,.xlsx,.csv">
+      <div class="upload-icon">🛒</div>
+      <div class="upload-title">ملف Salla</div>
+      <div class="upload-sub">تقرير الطلبات من متجر سلة<br>(.xls / .xlsx)</div>
+      <div class="upload-status" id="sallaStatus">✅ تم تحميل الملف</div>
+    </div>
+    <div class="upload-card" id="fxCard" onclick="document.getElementById('fxInput').click()">
+      <input type="file" class="file-input" id="fxInput" accept=".xls,.xlsx,.csv">
+      <div class="upload-icon">📦</div>
+      <div class="upload-title">ملف FragranceX</div>
+      <div class="upload-sub">تاريخ الطلبات من المورد<br>(.xls / .xlsx)</div>
+      <div class="upload-status" id="fxStatus">✅ تم تحميل الملف</div>
+    </div>
+  </div>
+  <button class="process-btn" id="processBtn" onclick="processFiles()">🚀 احسب الأرباح</button>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard">
+  <!-- FILTER BAR -->
+  <div class="filter-bar">
+    <span class="filter-label">📅 الفترة:</span>
+    <button class="filter-btn active" onclick="setFilter('all', this)">الكل</button>
+    <button class="filter-btn" onclick="setFilter('7', this)">آخر 7 أيام</button>
+    <button class="filter-btn" onclick="setFilter('30', this)">آخر 30 يوم</button>
+    <button class="filter-btn" onclick="setFilter('90', this)">آخر 90 يوم</button>
+    <div class="filter-sep"></div>
+    <span class="filter-label">نطاق مخصص:</span>
+    <div class="date-inputs">
+      <input type="date" class="date-input" id="dateFrom" onchange="setCustomFilter()">
+      <span style="color:var(--text3);">—</span>
+      <input type="date" class="date-input" id="dateTo" onchange="setCustomFilter()">
+    </div>
+    <div style="margin-right:auto; font-size:13px; color:var(--text3);" id="resultCount"></div>
+    <button class="btn-settings" onclick="resetUpload()" style="font-size:12px; padding:6px 14px;">↩️ رفع ملفات جديدة</button>
+  </div>
+
+  <!-- KPI CARDS -->
+  <div class="kpi-grid">
+    <div class="kpi-card green">
+      <div class="kpi-label">إجمالي الأرباح</div>
+      <div class="kpi-value" id="kpiProfit">0</div>
+      <div class="kpi-sub" id="kpiProfitSub">ريال سعودي</div>
+    </div>
+    <div class="kpi-card blue">
+      <div class="kpi-label">إجمالي المبيعات</div>
+      <div class="kpi-value" id="kpiRevenue">0</div>
+      <div class="kpi-sub" id="kpiRevenueSub">ريال سعودي</div>
+    </div>
+    <div class="kpi-card amber">
+      <div class="kpi-label">هامش الربح</div>
+      <div class="kpi-value" id="kpiMargin">0%</div>
+      <div class="kpi-sub" id="kpiMarginSub">نسبة الربح من المبيعات</div>
+    </div>
+    <div class="kpi-card red">
+      <div class="kpi-label">إجمالي التكاليف</div>
+      <div class="kpi-value" id="kpiCost">0</div>
+      <div class="kpi-sub" id="kpiCostSub">تكلفة البضاعة + رسوم</div>
+    </div>
+  </div>
+
+  <!-- MINI STATS ROW -->
+  <div class="stat-mini-grid" style="margin-bottom:20px;">
+    <div class="stat-mini">
+      <div class="stat-mini-label">عدد الطلبات</div>
+      <div class="stat-mini-value" id="kpiOrders">0</div>
+    </div>
+    <div class="stat-mini">
+      <div class="stat-mini-label">متوسط الربح / طلب</div>
+      <div class="stat-mini-value" id="kpiAvgProfit">0 ر.س</div>
+    </div>
+    <div class="stat-mini">
+      <div class="stat-mini-label">رسوم بوابات الدفع</div>
+      <div class="stat-mini-value" id="kpiGwFees">0 ر.س</div>
+    </div>
+    <div class="stat-mini">
+      <div class="stat-mini-label">رسوم بطاقة FX</div>
+      <div class="stat-mini-value" id="kpiFxFees">0 ر.س</div>
+    </div>
+  </div>
+
+  <!-- MAIN CHART + PAYMENT BREAKDOWN -->
+  <div class="charts-row">
+    <div class="chart-card">
+      <div class="chart-header">
+        <div>
+          <div class="chart-title">الأرباح اليومية</div>
+          <div class="chart-sub">ربح صافٍ بعد جميع التكاليف والرسوم</div>
+        </div>
+        <div class="chart-toggle">
+          <button class="chart-toggle-btn active" onclick="toggleChart('bar', this)">📊 أعمدة</button>
+          <button class="chart-toggle-btn" onclick="toggleChart('line', this)">📈 خط</button>
+        </div>
+      </div>
+      <canvas id="dailyChart" height="120"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="chart-header">
+        <div>
+          <div class="chart-title">توزيع طرق الدفع</div>
+          <div class="chart-sub">بناءً على عدد الطلبات</div>
+        </div>
+      </div>
+      <canvas id="paymentChart" height="160"></canvas>
+    </div>
+  </div>
+
+  <!-- SECOND ROW: Monthly + Payment Fees Table -->
+  <div class="second-row">
+    <div class="chart-card">
+      <div class="chart-header">
+        <div>
+          <div class="chart-title">الأرباح الشهرية</div>
+          <div class="chart-sub">مقارنة الأرباح شهر بشهر</div>
+        </div>
+      </div>
+      <canvas id="monthlyChart" height="150"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="chart-header">
+        <div>
+          <div class="chart-title">تفصيل رسوم الدفع</div>
+          <div class="chart-sub">الرسوم المدفوعة لكل بوابة</div>
+        </div>
+      </div>
+      <div class="payment-breakdown" id="paymentBreakdown"></div>
+    </div>
+  </div>
+
+  <!-- ORDERS TABLE -->
+  <div class="table-card">
+    <div class="chart-header">
+      <div>
+        <div class="chart-title">📋 تفاصيل الطلبات</div>
+        <div class="chart-sub">قائمة كاملة بالطلبات والأرباح</div>
+      </div>
+    </div>
+    <div class="tab-nav">
+      <button class="tab-btn active" onclick="showTab('all-orders', this)">كل الطلبات</button>
+      <button class="tab-btn" onclick="showTab('profitable', this)">الأكثر ربحية</button>
+    </div>
+    <div class="tab-panel active" id="all-orders">
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>التاريخ</th>
+              <th>طريقة الدفع</th>
+              <th>مبيعات (ر.س)</th>
+              <th>تكلفة FX ($)</th>
+              <th>تكلفة FX (ر.س)</th>
+              <th>رسوم الدفع</th>
+              <th>رسوم FX بطاقة</th>
+              <th>الربح (ر.س)</th>
+              <th>هامش %</th>
+            </tr>
+          </thead>
+          <tbody id="ordersTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="tab-panel" id="profitable">
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>التاريخ</th>
+              <th>طريقة الدفع</th>
+              <th>مبيعات (ر.س)</th>
+              <th>الربح (ر.س)</th>
+              <th>هامش %</th>
+            </tr>
+          </thead>
+          <tbody id="topTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===================== STATE =====================
+let sallaData = null;
+let fxData = null;
+let allRows = [];
+let filteredRows = [];
+let dailyChart = null;
+let paymentChart = null;
+let monthlyChart = null;
+let currentChartType = 'bar';
+
+let settings = {
+  fee_mada: 1.7,
+  fee_credit: 2.6,
+  fee_tabby: 5.17,
+  fee_tamara: 2.95,
+  fee_applepay: 2.6,
+  fee_cod: 0,
+  fee_stc: 1.7,
+  fee_fx_card: 2.3,
+  usd_sar: 3.75,
+  vat_rate: 15,
+  local_shipping: 32
+};
+
+const PAYMENT_COLORS = {
+  'mada': '#00d4aa',
+  'credit_card': '#0ea5e9',
+  'tabby': '#f59e0b',
+  'tabby_installment': '#f59e0b',
+  'tamara': '#a78bfa',
+  'applepay': '#cbd5e1',
+  'apple_pay': '#cbd5e1',
+  'cod': '#fb923c',
+  'stc': '#34d399',
+  'البطاقة الإئتمانية': '#0ea5e9',
+  'مدى': '#00d4aa',
+  'تابي': '#f59e0b',
+  'تمارا': '#a78bfa',
+  'الدفع عند الاستلام': '#fb923c',
+};
+
+// ===================== FILE UPLOAD =====================
+document.getElementById('sallaInput').addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  document.getElementById('sallaStatus').textContent = '✅ ' + file.name;
+  document.getElementById('sallaCard').classList.add('loaded');
+  readExcel(file, 'salla');
+});
+
+document.getElementById('fxInput').addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  document.getElementById('fxStatus').textContent = '✅ ' + file.name;
+  document.getElementById('fxCard').classList.add('loaded');
+  readExcel(file, 'fx');
+});
+
+function readExcel(file, type) {
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const wb = XLSX.read(e.target.result, {type:'binary', cellDates:true});
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const data = XLSX.utils.sheet_to_json(ws, {raw:false, defval:''});
+      if (type === 'salla') sallaData = data;
+      else fxData = data;
+      checkReady();
+    } catch(err) {
+      alert('خطأ في قراءة الملف: ' + err.message);
+    }
+  };
+  reader.readAsBinaryString(file);
+}
+
+function checkReady() {
+  if (sallaData && fxData) {
+    document.getElementById('processBtn').classList.add('ready');
+  }
+}
+
+// ===================== PROCESS =====================
+function processFiles() {
+  if (!sallaData || !fxData) return;
+  document.getElementById('loading').classList.add('show');
+  setTimeout(() => {
+    try {
+      buildRows();
+      renderDashboard();
+      document.getElementById('uploadSection').style.display = 'none';
+      document.getElementById('dashboard').style.display = 'block';
+    } catch(err) {
+      alert('خطأ في المعالجة: ' + err.message);
+      console.error(err);
+    }
+    document.getElementById('loading').classList.remove('show');
+  }, 300);
+}
+
+function getPaymentFeeRate(method) {
+  if (!method) return settings.fee_mada / 100;
+  const m = method.toString().toLowerCase().trim();
+  if (m.includes('mada') || m.includes('مدى')) return settings.fee_mada / 100;
+  if (m.includes('credit') || m.includes('بطاقة') || m.includes('visa') || m.includes('mastercard')) return settings.fee_credit / 100;
+  if (m.includes('tabby')) return settings.fee_tabby / 100;
+  if (m.includes('tamara') || m.includes('تمارا')) return settings.fee_tamara / 100;
+  if (m.includes('apple')) return settings.fee_applepay / 100;
+  if (m.includes('cod') || m.includes('استلام')) return settings.fee_cod / 100;
+  if (m.includes('stc')) return settings.fee_stc / 100;
+  return settings.fee_mada / 100;
+}
+
+function getPaymentLabel(method) {
+  if (!method) return 'غير محدد';
+  const m = method.toString().toLowerCase().trim();
+  if (m.includes('mada') || m === 'مدى') return 'مدى';
+  if (m.includes('credit') || m.includes('بطاقة')) return 'بطاقة ائتمانية';
+  if (m.includes('tabby')) return 'تابي';
+  if (m.includes('tamara') || m === 'تمارا') return 'تمارا';
+  if (m.includes('apple')) return 'Apple Pay';
+  if (m.includes('cod') || m.includes('استلام')) return 'الاستلام';
+  if (m.includes('stc')) return 'STC Pay';
+  return method.toString();
+}
+
+function getPaymentClass(method) {
+  if (!method) return 'pm-other';
+  const m = method.toString().toLowerCase();
+  if (m.includes('mada') || m.includes('مدى')) return 'pm-mada';
+  if (m.includes('credit') || m.includes('بطاقة')) return 'pm-credit';
+  if (m.includes('tabby') || m.includes('تابي')) return 'pm-tabby';
+  if (m.includes('tamara') || m.includes('تمارا')) return 'pm-tamara';
+  if (m.includes('apple')) return 'pm-apple';
+  return 'pm-other';
+}
+
+function parseDate(v) {
+  if (!v) return null;
+  // Handle various date formats
+  if (v instanceof Date) return v;
+  const s = v.toString().trim();
+  // Try YYYY-MM-DD HH:mm
+  const d = new Date(s.replace(' ', 'T'));
+  if (!isNaN(d)) return d;
+  return null;
+}
+
+function parseNum(v) {
+  if (v === null || v === undefined || v === '') return 0;
+  return parseFloat(v.toString().replace(/[,\s]/g,'')) || 0;
+}
+
+// Detect Salla columns dynamically
+function detectSallaColumns(row) {
+  const keys = Object.keys(row);
+  const find = (...terms) => keys.find(k => terms.some(t => k.includes(t)));
+  return {
+    date: find('تاريخ الطلب', 'Date', 'date'),
+    total: find('إجمالي الطلب', 'مجموع السلة', 'المجموع الكلي', 'Total'),
+    shipping: find('تكلفة الشحن', 'الشحن', 'Shipping'),
+    payment: find('طريقة الدفع', 'Payment Method', 'payment_method'),
+    gwFee: find('رسوم بوابات الدفع', 'Payment Method Fees', 'عمولة الدفع'),
+    netAmount: find('المبلغ الصافي', 'After payment fees', 'After Fees')
+  };
+}
+
+// Detect FX columns
+function detectFxColumns(row) {
+  const keys = Object.keys(row);
+  const find = (...terms) => keys.find(k => terms.some(t => k.includes(t)));
+  return {
+    orderId: find('رقم الطلب', 'Order', 'order_id'),
+    subtotal: find('مجموع المشتريات', 'Subtotal', 'Sub Total', 'Product'),
+    shipping: find('الشحن', 'Shipping'),
+    total: find('المجموع الكلي', 'Total', 'Grand Total'),
+    cardFee: find('رسوم بطاقتي', 'Credit card', 'Card Fee', 'الاجمالي بعد')
+  };
+}
+
+function buildRows() {
+  allRows = [];
+  
+  if (!sallaData || sallaData.length === 0) return;
+  
+  // Detect columns from first row
+  const sCols = detectSallaColumns(sallaData[0]);
+  
+  // Build FX total per order index (sequential matching since no direct ID link)
+  // FX data is ordered, we match by index order
+  let fxIndex = 0;
+  
+  for (let i = 0; i < sallaData.length; i++) {
+    const sRow = sallaData[i];
+    
+    // Parse date
+    const dateVal = sRow[sCols.date] || sRow['Date'] || sRow['تاريخ الطلب'];
+    const date = parseDate(dateVal);
+    
+    // Parse Salla financials
+    let sallaTotal = parseNum(sRow[sCols.total] || sRow['إجمالي الطلب'] || sRow['المجموع الكلي'] || sRow['Total C'] || sRow['مجموع الطلب']);
+    let sallaShipping = parseNum(sRow[sCols.shipping] || sRow['تكلفة الشحن'] || sRow['الشحن'] || sRow['Shipping Cost C']);
+    let paymentMethod = sRow[sCols.payment] || sRow['طريقة الدفع'] || sRow['Payment Method'] || '';
+    
+    // Payment fee from file or calculate
+    let gwFee = parseNum(sRow[sCols.gwFee] || sRow['رسوم بوابات الدفع كاملة'] || sRow['Payment Method Fees'] || 0);
+    if (gwFee === 0 && sallaTotal > 0) {
+      gwFee = sallaTotal * getPaymentFeeRate(paymentMethod);
+    }
+    
+    let netFromSalla = parseNum(sRow[sCols.netAmount] || sRow['المبلغ الصافي'] || sRow['After payment fees'] || 0);
+    if (netFromSalla === 0) {
+      netFromSalla = sallaTotal - gwFee;
+    }
+    
+    // Get corresponding FX row
+    let fxTotal = 0;
+    let fxSubtotal = 0;
+    let fxShipping = 0;
+    let fxCardFee = 0;
+    
+    if (fxData && fxIndex < fxData.length) {
+      const fxRow = fxData[fxIndex];
+      const fCols = detectFxColumns(fxRow);
+      fxSubtotal = parseNum(fxRow[fCols.subtotal] || fxRow['مجموع المشتريات'] || 0);
+      fxShipping = parseNum(fxRow[fCols.shipping] || fxRow['الشحن'] || 0);
+      fxTotal = parseNum(fxRow[fCols.total] || fxRow['المجموع الكلي'] || fxSubtotal + fxShipping);
+      
+      // Card fee from file or calculate
+      fxCardFee = parseNum(fxRow[fCols.cardFee] || fxRow['رسوم بطاقتي الائتمانية'] || fxRow['الاجمالي بعد البطاقة'] || 0);
+      // If the column has the after-fee total (not the fee itself), derive fee
+      const afterFeeCol = fxRow['الاجمالي بعد البطاقة'];
+      if (afterFeeCol && parseNum(afterFeeCol) > 0 && parseNum(afterFeeCol) > fxTotal) {
+        fxCardFee = parseNum(afterFeeCol) - fxTotal;
+      } else if (fxCardFee === 0 || isNaN(fxCardFee)) {
+        fxCardFee = fxTotal * (settings.fee_fx_card / 100);
+      }
+      fxIndex++;
+    }
+    
+    // Convert FX cost to SAR
+    const fxTotalSAR = fxTotal * settings.usd_sar;
+    const fxCardFeeSAR = fxCardFee * settings.usd_sar;
+    
+    // PROFIT = Net from Salla - (FX cost in SAR + FX card fee in SAR)
+    const totalCostSAR = fxTotalSAR + fxCardFeeSAR;
+    const profit = netFromSalla - totalCostSAR;
+    const margin = sallaTotal > 0 ? (profit / sallaTotal * 100) : 0;
+    
+    allRows.push({
+      date,
+      dateStr: date ? date.toISOString().split('T')[0] : '',
+      paymentMethod,
+      sallaTotal,
+      sallaShipping,
+      gwFee,
+      netFromSalla,
+      fxTotal,
+      fxSubtotal,
+      fxShipping,
+      fxCardFee,
+      fxTotalSAR,
+      fxCardFeeSAR,
+      totalCostSAR,
+      profit,
+      margin
+    });
+  }
+  
+  filteredRows = [...allRows];
+}
+
+// ===================== RENDER =====================
+function renderDashboard() {
+  applyFilter();
+}
+
+function applyFilter() {
+  const fromDate = document.getElementById('dateFrom').value;
+  const toDate = document.getElementById('dateTo').value;
+  
+  if (fromDate || toDate) {
+    const from = fromDate ? new Date(fromDate) : null;
+    const to = toDate ? new Date(toDate + 'T23:59:59') : null;
+    filteredRows = allRows.filter(r => {
+      if (!r.date) return true;
+      if (from && r.date < from) return false;
+      if (to && r.date > to) return false;
+      return true;
+    });
+  }
+  
+  updateKPIs();
+  updateDailyChart();
+  updatePaymentChart();
+  updateMonthlyChart();
+  updatePaymentBreakdown();
+  updateTable();
+  
+  document.getElementById('resultCount').textContent = `${filteredRows.length} طلب`;
+}
+
+function setFilter(days, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('dateFrom').value = '';
+  document.getElementById('dateTo').value = '';
+  
+  if (days === 'all') {
+    filteredRows = [...allRows];
+  } else {
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - parseInt(days));
+    filteredRows = allRows.filter(r => r.date && r.date >= cutoff);
+  }
+  
+  updateKPIs();
+  updateDailyChart();
+  updatePaymentChart();
+  updateMonthlyChart();
+  updatePaymentBreakdown();
+  updateTable();
+  document.getElementById('resultCount').textContent = `${filteredRows.length} طلب`;
+}
+
+function setCustomFilter() {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  applyFilter();
+}
+
+function fmt(n) { return n.toLocaleString('ar-SA', {maximumFractionDigits:1}); }
+
+function updateKPIs() {
+  const rows = filteredRows;
+  const totalProfit = rows.reduce((s,r)=>s+r.profit, 0);
+  const totalRevenue = rows.reduce((s,r)=>s+r.sallaTotal, 0);
+  const totalCost = rows.reduce((s,r)=>s+r.totalCostSAR, 0);
+  const totalGwFees = rows.reduce((s,r)=>s+r.gwFee, 0);
+  const totalFxFees = rows.reduce((s,r)=>s+r.fxCardFeeSAR, 0);
+  const margin = totalRevenue > 0 ? (totalProfit/totalRevenue*100) : 0;
+  const avgProfit = rows.length > 0 ? totalProfit/rows.length : 0;
+
+  document.getElementById('kpiProfit').textContent = fmt(totalProfit) + ' ر.س';
+  document.getElementById('kpiRevenue').textContent = fmt(totalRevenue) + ' ر.س';
+  document.getElementById('kpiMargin').textContent = margin.toFixed(1) + '%';
+  document.getElementById('kpiCost').textContent = fmt(totalCost) + ' ر.س';
+  document.getElementById('kpiOrders').textContent = rows.length;
+  document.getElementById('kpiAvgProfit').textContent = fmt(avgProfit) + ' ر.س';
+  document.getElementById('kpiGwFees').textContent = fmt(totalGwFees) + ' ر.س';
+  document.getElementById('kpiFxFees').textContent = fmt(totalFxFees) + ' ر.س';
+}
+
+function groupByDate(rows) {
+  const map = {};
+  rows.forEach(r => {
+    if (!r.dateStr) return;
+    if (!map[r.dateStr]) map[r.dateStr] = 0;
+    map[r.dateStr] += r.profit;
+  });
+  const sorted = Object.keys(map).sort();
+  return { labels: sorted, values: sorted.map(k => map[k]) };
+}
+
+function groupByMonth(rows) {
+  const map = {};
+  rows.forEach(r => {
+    if (!r.date) return;
+    const key = r.date.toISOString().substring(0,7); // YYYY-MM
+    if (!map[key]) map[key] = 0;
+    map[key] += r.profit;
+  });
+  const sorted = Object.keys(map).sort();
+  const labels = sorted.map(k => {
+    const [y,m] = k.split('-');
+    const months = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+    return months[parseInt(m)-1] + ' ' + y;
+  });
+  return { labels, values: sorted.map(k => map[k]) };
+}
+
+function updateDailyChart() {
+  const {labels, values} = groupByDate(filteredRows);
+  const ctx = document.getElementById('dailyChart').getContext('2d');
+  
+  if (dailyChart) dailyChart.destroy();
+  
+  const colors = values.map(v => v >= 0 ? 'rgba(0,212,170,0.8)' : 'rgba(239,68,68,0.8)');
+  
+  dailyChart = new Chart(ctx, {
+    type: currentChartType,
+    data: {
+      labels,
+      datasets: [{
+        label: 'الربح (ر.س)',
+        data: values,
+        backgroundColor: currentChartType === 'bar' ? colors : 'rgba(0,212,170,0.1)',
+        borderColor: 'rgba(0,212,170,0.9)',
+        borderWidth: currentChartType === 'line' ? 2 : 0,
+        borderRadius: currentChartType === 'bar' ? 6 : 0,
+        fill: currentChartType === 'line',
+        tension: 0.4,
+        pointRadius: currentChartType === 'line' ? 3 : 0,
+        pointBackgroundColor: '#00d4aa',
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => ' ربح: ' + fmt(ctx.raw) + ' ر.س'
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { color: 'rgba(30,45,69,0.5)' },
+          ticks: { color: '#64748b', font: {family:'Tajawal', size:11}, maxTicksLimit: 12 }
+        },
+        y: {
+          grid: { color: 'rgba(30,45,69,0.5)' },
+          ticks: { color: '#64748b', font: {family:'Tajawal', size:11} }
+        }
+      }
+    }
+  });
+}
+
+function updatePaymentChart() {
+  const map = {};
+  filteredRows.forEach(r => {
+    const lbl = getPaymentLabel(r.paymentMethod);
+    map[lbl] = (map[lbl]||0) + 1;
+  });
+  
+  const labels = Object.keys(map);
+  const values = labels.map(k => map[k]);
+  const bgColors = labels.map((l,i) => {
+    const palette = ['#00d4aa','#0ea5e9','#f59e0b','#a78bfa','#cbd5e1','#fb923c','#34d399'];
+    return palette[i % palette.length];
+  });
+  
+  const ctx = document.getElementById('paymentChart').getContext('2d');
+  if (paymentChart) paymentChart.destroy();
+  
+  paymentChart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels,
+      datasets: [{
+        data: values,
+        backgroundColor: bgColors,
+        borderWidth: 0,
+        hoverOffset: 6
+      }]
+    },
+    options: {
+      responsive: true,
+      cutout: '65%',
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { color:'#94a3b8', font:{family:'Tajawal',size:12}, padding:12, boxWidth:12 }
+        }
+      }
+    }
+  });
+}
+
+function updateMonthlyChart() {
+  const {labels, values} = groupByMonth(filteredRows);
+  const ctx = document.getElementById('monthlyChart').getContext('2d');
+  if (monthlyChart) monthlyChart.destroy();
+  
+  monthlyChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: 'الربح الشهري',
+        data: values,
+        backgroundColor: values.map(v => v >= 0 ? 'rgba(14,165,233,0.8)' : 'rgba(239,68,68,0.8)'),
+        borderRadius: 8,
+        borderWidth: 0
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: { label: ctx => ' ربح: ' + fmt(ctx.raw) + ' ر.س' }
+        }
+      },
+      scales: {
+        x: { grid:{color:'rgba(30,45,69,0.5)'}, ticks:{color:'#64748b',font:{family:'Tajawal',size:11}} },
+        y: { grid:{color:'rgba(30,45,69,0.5)'}, ticks:{color:'#64748b',font:{family:'Tajawal',size:11}} }
+      }
+    }
+  });
+}
+
+function updatePaymentBreakdown() {
+  const map = {};
+  filteredRows.forEach(r => {
+    const lbl = getPaymentLabel(r.paymentMethod);
+    if (!map[lbl]) map[lbl] = {count:0, fees:0, revenue:0};
+    map[lbl].count++;
+    map[lbl].fees += r.gwFee;
+    map[lbl].revenue += r.sallaTotal;
+  });
+  
+  const palette = ['#00d4aa','#0ea5e9','#f59e0b','#a78bfa','#cbd5e1','#fb923c','#34d399'];
+  const entries = Object.entries(map).sort((a,b)=>b[1].revenue-a[1].revenue);
+  
+  const html = entries.map(([name, data], i) => `
+    <div class="pb-item">
+      <div class="pb-name">
+        <div class="pb-dot" style="background:${palette[i%palette.length]}"></div>
+        <span>${name}</span>
+        <span style="color:var(--text3); font-size:12px;">(${data.count})</span>
+      </div>
+      <div class="pb-stats">
+        <div class="pb-amount" style="color:${palette[i%palette.length]}">${fmt(data.revenue)} ر.س</div>
+        <div class="pb-fee">رسوم: ${fmt(data.fees)} ر.س</div>
+      </div>
+    </div>
+  `).join('');
+  
+  document.getElementById('paymentBreakdown').innerHTML = html || '<div style="color:var(--text3);text-align:center;padding:20px">لا توجد بيانات</div>';
+}
+
+function updateTable() {
+  const sorted = [...filteredRows].sort((a,b)=> {
+    if (!a.date && !b.date) return 0;
+    if (!a.date) return 1;
+    if (!b.date) return -1;
+    return b.date - a.date;
+  });
+  
+  const bodyHtml = sorted.map((r,i) => {
+    const profitClass = r.profit >= 0 ? 'profit-pos' : 'profit-neg';
+    const marginClass = r.margin >= 0 ? 'profit-pos' : 'profit-neg';
+    return `
+      <tr>
+        <td>${i+1}</td>
+        <td>${r.dateStr || '-'}</td>
+        <td><span class="payment-badge ${getPaymentClass(r.paymentMethod)}">${getPaymentLabel(r.paymentMethod)}</span></td>
+        <td>${fmt(r.sallaTotal)}</td>
+        <td>${r.fxTotal.toFixed(2)}</td>
+        <td>${fmt(r.fxTotalSAR)}</td>
+        <td>${fmt(r.gwFee)}</td>
+        <td>${fmt(r.fxCardFeeSAR)}</td>
+        <td class="profit-cell ${profitClass}">${fmt(r.profit)}</td>
+        <td class="${marginClass}">${r.margin.toFixed(1)}%</td>
+      </tr>
+    `;
+  }).join('');
+  document.getElementById('ordersTableBody').innerHTML = bodyHtml || '<tr><td colspan="10" style="text-align:center;color:var(--text3);padding:30px">لا توجد بيانات</td></tr>';
+  
+  // Top profitable
+  const top = [...filteredRows].sort((a,b)=>b.profit-a.profit).slice(0,20);
+  const topHtml = top.map((r,i) => `
+    <tr>
+      <td>${i+1}</td>
+      <td>${r.dateStr || '-'}</td>
+      <td><span class="payment-badge ${getPaymentClass(r.paymentMethod)}">${getPaymentLabel(r.paymentMethod)}</span></td>
+      <td>${fmt(r.sallaTotal)}</td>
+      <td class="profit-cell profit-pos">${fmt(r.profit)}</td>
+      <td class="profit-pos">${r.margin.toFixed(1)}%</td>
+    </tr>
+  `).join('');
+  document.getElementById('topTableBody').innerHTML = topHtml || '<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:30px">لا توجد بيانات</td></tr>';
+}
+
+// ===================== CHART TOGGLE =====================
+function toggleChart(type, btn) {
+  document.querySelectorAll('.chart-toggle-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  currentChartType = type;
+  updateDailyChart();
+}
+
+// ===================== TABS =====================
+function showTab(id, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(id).classList.add('active');
+}
+
+// ===================== SETTINGS =====================
+function openSettings() {
+  document.getElementById('fee_mada').value = settings.fee_mada;
+  document.getElementById('fee_credit').value = settings.fee_credit;
+  document.getElementById('fee_tabby').value = settings.fee_tabby;
+  document.getElementById('fee_tamara').value = settings.fee_tamara;
+  document.getElementById('fee_applepay').value = settings.fee_applepay;
+  document.getElementById('fee_cod').value = settings.fee_cod;
+  document.getElementById('fee_stc').value = settings.fee_stc;
+  document.getElementById('fee_fx_card').value = settings.fee_fx_card;
+  document.getElementById('usd_sar').value = settings.usd_sar;
+  document.getElementById('vat_rate').value = settings.vat_rate;
+  document.getElementById('local_shipping').value = settings.local_shipping;
+  document.getElementById('settingsModal').classList.add('open');
+}
+
+function closeSettings() {
+  document.getElementById('settingsModal').classList.remove('open');
+}
+
+function saveSettings() {
+  settings.fee_mada = parseFloat(document.getElementById('fee_mada').value)||1.7;
+  settings.fee_credit = parseFloat(document.getElementById('fee_credit').value)||2.6;
+  settings.fee_tabby = parseFloat(document.getElementById('fee_tabby').value)||5.17;
+  settings.fee_tamara = parseFloat(document.getElementById('fee_tamara').value)||2.95;
+  settings.fee_applepay = parseFloat(document.getElementById('fee_applepay').value)||2.6;
+  settings.fee_cod = parseFloat(document.getElementById('fee_cod').value)||0;
+  settings.fee_stc = parseFloat(document.getElementById('fee_stc').value)||1.7;
+  settings.fee_fx_card = parseFloat(document.getElementById('fee_fx_card').value)||2.3;
+  settings.usd_sar = parseFloat(document.getElementById('usd_sar').value)||3.75;
+  settings.vat_rate = parseFloat(document.getElementById('vat_rate').value)||15;
+  settings.local_shipping = parseFloat(document.getElementById('local_shipping').value)||32;
+  
+  closeSettings();
+  
+  if (sallaData && fxData && allRows.length > 0) {
+    document.getElementById('loading').classList.add('show');
+    setTimeout(() => {
+      buildRows();
+      applyFilter();
+      document.getElementById('loading').classList.remove('show');
+    }, 200);
+  }
+}
+
+// Close modal on backdrop click
+document.getElementById('settingsModal').addEventListener('click', function(e) {
+  if (e.target === this) closeSettings();
+});
+
+function resetUpload() {
+  document.getElementById('uploadSection').style.display = 'block';
+  document.getElementById('dashboard').style.display = 'none';
+  sallaData = null; fxData = null; allRows = []; filteredRows = [];
+  document.getElementById('sallaCard').classList.remove('loaded');
+  document.getElementById('fxCard').classList.remove('loaded');
+  document.getElementById('sallaStatus').textContent = '✅ تم تحميل الملف';
+  document.getElementById('fxStatus').textContent = '✅ تم تحميل الملف';
+  document.getElementById('processBtn').classList.remove('ready');
+  document.getElementById('sallaInput').value = '';
+  document.getElementById('fxInput').value = '';
+}
+</script>
+</body>
+</html>
