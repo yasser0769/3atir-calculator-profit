@@ -6,7 +6,7 @@
 <title>داشبورد الأرباح - عاطر</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#07090f;--surface:#0f1623;--surface2:#162033;--surface3:#1c2a40;
@@ -17,7 +17,7 @@
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 html{scroll-behavior:smooth;}
-body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;direction:rtl;}
+body{font-family:'Noto Sans Arabic',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;direction:rtl;}
 ::-webkit-scrollbar{width:6px;height:6px;}
 ::-webkit-scrollbar-track{background:var(--surface);}
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
@@ -31,7 +31,7 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);min
 .hdr{display:flex;align-items:center;gap:10px;}
 
 /* BUTTONS */
-.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:9px;font-family:'Tajawal',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;border:none;}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:9px;font-family:'Noto Sans Arabic',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;border:none;}
 .btn-ghost{background:var(--surface2);border:1px solid var(--border);color:var(--text2);}
 .btn-ghost:hover{border-color:var(--accent);color:var(--accent);}
 .btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#07090f;font-weight:800;}
@@ -64,15 +64,15 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);min
 
 /* PAGE TABS */
 .pg-tabs{display:flex;gap:4px;background:var(--surface);border:1px solid var(--border);padding:4px;border-radius:12px;width:fit-content;}
-.pg-tab{padding:8px 22px;border-radius:9px;font-family:'Tajawal',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;border:none;background:transparent;color:var(--text3);}
+.pg-tab{padding:8px 22px;border-radius:9px;font-family:'Noto Sans Arabic',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;border:none;background:transparent;color:var(--text3);}
 .pg-tab.on{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
 
 /* FILTER */
 .fbar{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 20px;margin-bottom:20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
 .flabel{font-size:12px;color:var(--text3);font-weight:700;text-transform:uppercase;}
-.fbt{padding:6px 15px;border-radius:7px;font-family:'Tajawal',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;background:var(--surface2);border:1px solid var(--border);color:var(--text3);}
+.fbt{padding:6px 15px;border-radius:7px;font-family:'Noto Sans Arabic',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;background:var(--surface2);border:1px solid var(--border);color:var(--text3);}
 .fbt:hover,.fbt.on{border-color:var(--accent);color:var(--accent);background:rgba(0,229,187,.07);}
-.di{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:7px;font-family:'Tajawal',sans-serif;font-size:13px;}
+.di{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:7px;font-family:'Noto Sans Arabic',sans-serif;font-size:13px;}
 .di:focus{outline:none;border-color:var(--accent);}
 .vsep{width:1px;height:22px;background:var(--border);}
 
@@ -113,7 +113,7 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);min
 .cc-t{font-size:14px;font-weight:700;}
 .cc-s{font-size:12px;color:var(--text3);margin-top:2px;}
 .ctog{display:flex;gap:5px;}
-.ctb{background:var(--surface2);border:1px solid var(--border);color:var(--text3);padding:4px 11px;border-radius:6px;cursor:pointer;font-family:'Tajawal',sans-serif;font-size:11px;font-weight:600;transition:all .2s;}
+.ctb{background:var(--surface2);border:1px solid var(--border);color:var(--text3);padding:4px 11px;border-radius:6px;cursor:pointer;font-family:'Noto Sans Arabic',sans-serif;font-size:11px;font-weight:600;transition:all .2s;}
 .ctb.on{border-color:var(--accent);color:var(--accent);background:rgba(0,229,187,.08);}
 
 /* BREAKDOWN */
@@ -147,18 +147,19 @@ tbody td:first-child{color:var(--text);font-weight:500;}
 .b-camp{background:rgba(251,188,4,.12);color:var(--ads);}
 .b-g{background:rgba(34,197,94,.12);color:var(--green);}
 .b-r{background:rgba(244,63,94,.12);color:var(--red);}
-.pm-mada{background:rgba(0,229,187,.12);color:var(--accent);}
-.pm-credit{background:rgba(59,158,255,.12);color:var(--accent2);}
-.pm-tabby{background:rgba(245,158,11,.12);color:var(--accent3);}
-.pm-tamara{background:rgba(167,139,250,.12);color:var(--purple);}
-.pm-apple{background:rgba(255,255,255,.08);color:#cbd5e1;}
-.pm-other{background:rgba(78,97,128,.12);color:var(--text3);}
+.pm-mada{background:rgba(0,229,187,.15);color:#00e5bb;border:1px solid rgba(0,229,187,.3);}
+.pm-credit{background:rgba(59,158,255,.15);color:#3b9eff;border:1px solid rgba(59,158,255,.3);}
+.pm-tabby{background:rgba(62,207,142,.15);color:#3ecf8e;border:1px solid rgba(62,207,142,.3);}
+.pm-tamara{background:rgba(255,90,95,.15);color:#ff5a5f;border:1px solid rgba(255,90,95,.3);}
+.pm-apple{background:rgba(200,200,200,.12);color:#d1d5db;border:1px solid rgba(200,200,200,.2);}
+.pm-stc{background:rgba(122,84,232,.18);color:#a78bfa;border:1px solid rgba(122,84,232,.35);}
+.pm-other{background:rgba(78,97,128,.12);color:var(--text3);border:1px solid rgba(78,97,128,.2);}
 
 /* TAB PANELS */
 .tpanel{display:none;}
 .tpanel.on{display:block;}
 .itnav{display:flex;gap:6px;margin-bottom:16px;}
-.itb{background:transparent;border:1px solid var(--border);color:var(--text3);padding:6px 16px;border-radius:7px;cursor:pointer;font-family:'Tajawal',sans-serif;font-size:12px;font-weight:600;transition:all .2s;}
+.itb{background:transparent;border:1px solid var(--border);color:var(--text3);padding:6px 16px;border-radius:7px;cursor:pointer;font-family:'Noto Sans Arabic',sans-serif;font-size:12px;font-weight:600;transition:all .2s;}
 .itb.on{background:rgba(0,229,187,.08);border-color:var(--accent);color:var(--accent);}
 
 /* SETTINGS */
@@ -173,7 +174,7 @@ tbody td:first-child{color:var(--text);font-weight:500;}
 .mr{display:flex;align-items:center;justify-content:space-between;margin-bottom:11px;}
 .ml{font-size:13px;color:var(--text2);}
 .mw{display:flex;align-items:center;gap:6px;}
-.mi{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:7px 10px;border-radius:7px;font-family:'Tajawal',sans-serif;font-size:13px;width:88px;text-align:center;transition:border-color .2s;}
+.mi{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:7px 10px;border-radius:7px;font-family:'Noto Sans Arabic',sans-serif;font-size:13px;width:88px;text-align:center;transition:border-color .2s;}
 .mi:focus{outline:none;border-color:var(--accent);}
 .mu{font-size:12px;color:var(--text3);}
 .ms{margin-bottom:22px;}
@@ -299,7 +300,7 @@ tbody td:first-child{color:var(--text);font-weight:500;}
       <div class="kc cb"><div class="kg"></div><div class="kl">إجمالي المبيعات</div><div class="kv" id="kv-rev">—</div><div class="ks">إيرادات المتجر</div></div>
       <div class="kc cr"><div class="kg"></div><div class="kl">تكلفة البضاعة</div><div class="kv" id="kv-cogs">—</div><div class="ks">FX بالريال + رسوم</div></div>
       <div class="kc cads"><div class="kg"></div><div class="kl">إنفاق Google Ads</div><div class="kv" id="kv-ads">—</div><div class="ks" id="ks-ads">—</div></div>
-      <div class="kc ca"><div class="kg"></div><div class="kl">رسوم بوابات الدفع</div><div class="kv" id="kv-gw">—</div><div class="ks">سلة + FX بطاقة</div></div>
+      <div class="kc ca"><div class="kg"></div><div class="kl">رسوم بوابات الدفع</div><div class="kv" id="kv-gw">—</div><div class="ks">سلة + بطاقة الائتمانية FX</div></div>
       <div class="kc cg"><div class="kg"></div><div class="kl">صافي الربح</div><div class="kv" id="kv-net">—</div><div class="ks">بعد جميع التكاليف</div></div>
     </div>
 
@@ -346,7 +347,7 @@ tbody td:first-child{color:var(--text);font-weight:500;}
         <button class="itb" onclick="shItab('t-low',this)">الأقل ربحاً</button>
       </div>
       <div class="tpanel on" id="t-all">
-        <div class="tw"><table><thead><tr><th>#</th><th>رقم الطلب</th><th>التاريخ</th><th>طريقة الدفع</th><th>مبيعات ر.س</th><th>FX ($)</th><th>FX (ر.س)</th><th>رسوم بوابة</th><th>رسوم FX بطاقة</th><th>الربح</th><th>هامش%</th></tr></thead><tbody id="tb-all"></tbody></table></div>
+        <div class="tw"><table><thead><tr><th>#</th><th>رقم الطلب</th><th>التاريخ</th><th>طريقة الدفع</th><th>مبيعات</th><th>FX ($)</th><th>FX (ر.س)</th><th>رسوم بوابة</th><th>بطاقة ائتمانية FX</th><th>الربح</th><th>هامش%</th></tr></thead><tbody id="tb-all"></tbody></table></div>
       </div>
       <div class="tpanel" id="t-top">
         <div class="tw"><table><thead><tr><th>#</th><th>رقم الطلب</th><th>التاريخ</th><th>طريقة الدفع</th><th>مبيعات ر.س</th><th>الربح</th><th>هامش%</th></tr></thead><tbody id="tb-top"></tbody></table></div>
@@ -450,7 +451,12 @@ function pDate(v){
   return isNaN(d)?new Date(v.toString()):d;
 }
 const dStr=d=>d&&!isNaN(d)?d.toISOString().split('T')[0]:'';
-const fmt=(n,d=1)=>(n||0).toLocaleString('ar-SA',{maximumFractionDigits:d});
+// Western digits always — toLocaleString with 'en-US' for numbers
+const fmt=(n,d=1)=>Number(n||0).toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:d});
+// Saudi Riyal symbol — U+1ECAF (Unicode 16, supported Chrome 119+, Safari 17.4+)
+// Fallback gracefully — we test support and use it
+const SAR_SYM=(()=>{try{return String.fromCodePoint(0x1ECAF);}catch{return 'ر.س';}})();
+const sarFmt=(n,d=1)=>fmt(n,d)+'\u202F'+SAR_SYM;
 
 function feeRate(m){
   const s=(m||'').toLowerCase();
@@ -466,7 +472,7 @@ function feeRate(m){
 function pmLabel(m){
   const s=(m||'').toLowerCase();
   if(s.includes('mada')||s==='مدى') return 'مدى';
-  if(s.includes('credit')||s.includes('بطاقة')) return 'بطاقة ائتمانية';
+  if(s.includes('credit')||s.includes('بطاقة')||s.includes('visa')||s.includes('master')) return 'بطاقة ائتمانية';
   if(s.includes('tabby')||s.includes('تابي')) return 'تابي';
   if(s.includes('tamara')||s.includes('تمارا')) return 'تمارا';
   if(s.includes('apple')) return 'Apple Pay';
@@ -477,10 +483,11 @@ function pmLabel(m){
 function pmClass(m){
   const s=(m||'').toLowerCase();
   if(s.includes('mada')||s.includes('مدى')) return 'pm-mada';
-  if(s.includes('credit')||s.includes('بطاقة')) return 'pm-credit';
-  if(s.includes('tabby')) return 'pm-tabby';
-  if(s.includes('tamara')) return 'pm-tamara';
+  if(s.includes('credit')||s.includes('بطاقة')||s.includes('visa')||s.includes('master')) return 'pm-credit';
+  if(s.includes('tabby')||s.includes('تابي')) return 'pm-tabby';
+  if(s.includes('tamara')||s.includes('تمارا')) return 'pm-tamara';
   if(s.includes('apple')) return 'pm-apple';
+  if(s.includes('stc')) return 'pm-stc';
   return 'pm-other';
 }
 
@@ -511,10 +518,11 @@ function parseSalla(){
   const res=[];
   for(let i=hi+1;i<SD.length;i++){
     const r=SD[i]; if(!r||r.every(c=>!c)) continue;
-    // تجاهل الطلبات الملغاة
+    // تجاهل الطلبات الملغاة / المحذوفة / المستردة
     if(iStatus>=0){
       const st=(r[iStatus]||'').toString().trim();
-      if(st.includes('ملغ')||st.toLowerCase().includes('cancel')) continue;
+      if(st.includes('ملغ')||st.includes('محذوف')||st.includes('مسترجع')||st.includes('مسترد')||
+         st.toLowerCase().includes('cancel')||st.toLowerCase().includes('delet')||st.toLowerCase().includes('refund')) continue;
     }
     const tot=pN(iTot>=0?r[iTot]:0); if(!tot) continue;
     const orderId=iId>=0?r[iId].toString().trim():'';
@@ -532,23 +540,28 @@ function parseFX(){
   if(!FD) return new Map();
   const hi=findHeader(FD);
   const hdr=FD[hi].map(h=>(h||'').toString().trim());
-  // Look for Ext Order ID column — exact FX export column name
   const iExtId=fi(hdr,'Ext Order ID','ext_order_id','رقم الطلب','Order ID','order_id');
-  const iSub=fi(hdr,'مجموع المشتريات','Subtotal','Sub Total');
-  const iSh=fi(hdr,'الشحن','Shipping');
-  const iTot=fi(hdr,'المجموع الكلي','Total','Grand');
-  const iCard=fi(hdr,'رسوم بطاقتي','Credit card','الاجمالي بعد');
+  // Cost columns — support both English FX export and Arabic حاسبة عاطر format
+  const iSubtotal=fi(hdr,'Order Subtotal','Subtotal','Sub Total','مجموع المشتريات');
+  const iTax    =fi(hdr,'Order Tax','Tax','الضريبة','ضريبة');
+  const iShip   =fi(hdr,'Order Shipping','Shipping','الشحن');
+  const iTotal  =fi(hdr,'Order Total','المجموع الكلي','Total','Grand');
+  // Credit card fee — "بطاقة الائتمانية" in Arabic, "Credit Card Fee" in FX export
+  const iCard=fi(hdr,'Credit Card Fee','رسوم بطاقتي','رسوم بطاقة','Credit card','الاجمالي بعد');
   const map=new Map();
   for(let i=hi+1;i<FD.length;i++){
     const r=FD[i]; if(!r||r.every(c=>!c)) continue;
     const extId=iExtId>=0?r[iExtId].toString().trim():'';
     if(!extId) continue;
-    const sub=pN(iSub>=0?r[iSub]:0);
-    const sh=pN(iSh>=0?r[iSh]:0);
-    const tot=pN(iTot>=0?r[iTot]:0)||sub+sh; if(!tot) continue;
+    const sub =pN(iSubtotal>=0?r[iSubtotal]:0);
+    const tax =pN(iTax>=0?r[iTax]:0);
+    const ship=pN(iShip>=0?r[iShip]:0);
+    // Total = subtotal + tax + shipping (as per requirement)
+    const tot=(sub+tax+ship)||pN(iTotal>=0?r[iTotal]:0);
+    if(!tot) continue;
     let card=pN(iCard>=0?r[iCard]:0);
     if(!card) card=tot*(CFG.fx/100);
-    map.set(extId,{tot,card});
+    map.set(extId,{tot,sub,tax,ship,card});
   }
   return map;
 }
@@ -587,24 +600,28 @@ function parseAds(){
 // ══════════════════════════════════════
 // BUILD ORDER ROWS — matched by Order ID
 // ══════════════════════════════════════
-let UNMATCHED=[]; // Salla orders with no FX match
+let UNMATCHED=[]; // Salla orders with no FX match (excluded from calculations)
 
 function buildRows(){
   const sl=parseSalla();
   const fxMap=parseFX();
   AR=parseAds();
   UNMATCHED=[];
-  OR=sl.map(s=>{
+  OR=[];
+  for(const s of sl){
     const fx=fxMap.get(s.orderId)||null;
-    if(!fx) UNMATCHED.push(s.orderId);
-    const fxSAR=fx?(fx.tot*CFG.usd):0;
-    const fxCard=fx?(fx.card*CFG.usd):0;
+    if(!fx){
+      // No FX match → only show in warning, don't include in OR calculations
+      UNMATCHED.push(s.orderId);
+      continue; // skip — excluded entirely from profit calculations
+    }
+    const fxSAR=fx.tot*CFG.usd;
+    const fxCard=fx.card*CFG.usd;
     const cost=fxSAR+fxCard;
     const profit=s.net-cost;
     const margin=s.total>0?profit/s.total*100:0;
-    const hasFX=!!fx;
-    return {...s,fxUSD:fx?fx.tot:0,fxCardUSD:fx?fx.card:0,fxSAR,fxCard,cost,profit,margin,hasFX};
-  });
+    OR.push({...s,fxUSD:fx.tot,fxSub:fx.sub,fxTax:fx.tax,fxShip:fx.ship,fxCardUSD:fx.card,fxSAR,fxCard,cost,profit,margin,hasFX:true});
+  }
 }
 
 // ══════════════════════════════════════
@@ -660,40 +677,47 @@ function render(){
   const avgProfit=O.length?grossP/O.length:0;
 
   // KPIs
-  set('kv-rev',fmt(rev)+' ر.س');
-  set('kv-cogs',fmt(cogs)+' ر.س');
-  set('kv-ads',AD?fmt(adsSpend)+' ر.س':'—');
+  set('kv-rev',sarFmt(rev));
+  set('kv-cogs',sarFmt(cogs));
+  set('kv-ads',AD?sarFmt(adsSpend):'—');
   set('ks-ads',AD?camps.length+' يوم نشاط':'لم يُرفع ملف Ads');
-  set('kv-gw',fmt(gwF+fxF)+' ر.س');
-  set('kv-net',fmt(netP)+' ر.س');
+  set('kv-gw',sarFmt(gwF+fxF));
+  set('kv-net',sarFmt(netP));
   document.getElementById('kv-net').style.color=netP>=0?'var(--green)':'var(--red)';
   set('kv-mar',netM.toFixed(1)+'%');
   set('kv-roi',AD?roi.toFixed(1)+'x':'—');
-  set('kv-ord',O.length.toString());
-  set('ks-avg',fmt(avgOrd,0));
-  set('kv-cac',AD?fmt(cac,1)+' ر.س':'—');
+  set('kv-ord',O.length.toLocaleString('en-US'));
+  set('ks-avg',sarFmt(avgOrd,0));
+  set('kv-cac',AD?sarFmt(cac,1):'—');
 
   // ADS page KPIs
   if(AD){
-    set('ak-tot',fmt(adsSpend)+' ر.س');
-    set('ak-clk',totClk.toLocaleString('ar-SA'));
-    set('ak-cpc',fmt(cpc,2)+' ر.س');
-    set('ak-days',adsDays.toString());
+    set('ak-tot',sarFmt(adsSpend));
+    set('ak-clk',totClk.toLocaleString('en-US'));
+    set('ak-cpc',sarFmt(cpc,2));
+    set('ak-days',adsDays.toLocaleString('en-US'));
   }
 
-  // UNMATCHED WARNING BANNER
-  const unmatchedInFilter=OR.filter(r=>!r.hasFX&&fO.includes(r));
-  // also show global unmatched count
+  // UNMATCHED WARNING BANNER — طلبات سلة بدون مطابقة FX (مستبعدة كلياً من الحسابات)
   let warnHtml='';
   if(UNMATCHED.length>0){
-    const ids=UNMATCHED.slice(0,8).join('، ');
-    const extra=UNMATCHED.length>8?` وغيرها (${UNMATCHED.length-8} أخرى)`:'';
+    const ids=UNMATCHED.slice(0,6).join(' · ');
+    const extra=UNMATCHED.length>6?` وغيرها (${UNMATCHED.length-6} أخرى)`:'';
     warnHtml=`<div class="alert warn" style="flex-direction:column;align-items:flex-start;gap:6px;margin-bottom:12px;">
-      <div style="font-size:14px;font-weight:800;">⚠️ ${UNMATCHED.length} طلب سلة بدون مطابقة في FragranceX</div>
-      <div style="font-size:12px;opacity:.85;">هذه الطلبات تحسب <strong>بدون تكلفة FX</strong> — تحقق منها: <span style="font-family:monospace;direction:ltr;display:inline-block;">${ids}${extra}</span></div>
-      <div style="font-size:11px;opacity:.65;">تأكد أن عمود "Ext Order ID" في ملف FragranceX يحتوي على رقم الطلب الصحيح</div>
+      <div style="font-size:14px;font-weight:800;">⚠️ ${UNMATCHED.length} طلب سلة بدون مطابقة في FragranceX — تم استبعادها من الحسابات</div>
+      <div style="font-size:12px;opacity:.85;">أرقام الطلبات: <span style="font-family:monospace;direction:ltr;display:inline-block;letter-spacing:.5px;">${ids}${extra}</span></div>
+      <div style="font-size:11px;opacity:.65;">تأكد أن عمود "Ext Order ID" في ملف FragranceX يطابق رقم الطلب في سلة</div>
     </div>`;
   }
+
+  // INSIGHTS
+  const avgProfit=O.length?grossP/O.length:0;
+  const best=bestDay(O);
+  set('igrid',`
+    <div class="ibox"><div class="iico">💵</div><div><div class="ilbl">متوسط الربح / طلب</div><div class="ival">${sarFmt(avgProfit)}</div></div></div>
+    <div class="ibox"><div class="iico">📆</div><div><div class="ilbl">أفضل يوم</div><div class="ival">${best.ds||'—'} (${sarFmt(best.p)})</div></div></div>
+    <div class="ibox"><div class="iico">🖱️</div><div><div class="ilbl">تكلفة النقرة CPC</div><div class="ival">${AD?sarFmt(cpc,2):'—'}</div></div></div>
+  `);
 
   // PROFIT MARGIN ALERT
   const al=document.getElementById('alertDiv');
@@ -710,15 +734,7 @@ function render(){
     al.style.display='none';
   }
 
-  // INSIGHTS
-  const best=bestDay(O);
-  set('igrid',`
-    <div class="ibox"><div class="iico">💵</div><div><div class="ilbl">متوسط الربح / طلب</div><div class="ival">${fmt(avgProfit)} ر.س</div></div></div>
-    <div class="ibox"><div class="iico">📆</div><div><div class="ilbl">أفضل يوم</div><div class="ival">${best.ds||'—'} (${fmt(best.p)} ر.س)</div></div></div>
-    <div class="ibox"><div class="iico">🖱️</div><div><div class="ilbl">تكلفة النقرة CPC</div><div class="ival">${AD?fmt(cpc,2)+' ر.س':'—'}</div></div></div>
-  `);
-
-  document.getElementById('cnt').textContent=O.length+' طلب'+(AD?' · '+camps.length+' يوم إعلاني':'');
+  document.getElementById('cnt').textContent=O.length.toLocaleString('en-US')+' طلب'+(AD?' · '+camps.length+' يوم إعلاني':'');
 
   // CHARTS
   buildDayChart(O);
@@ -749,7 +765,7 @@ function bestDay(O){
 // CHARTS
 // ══════════════════════════════════════
 const GR={color:'rgba(30,45,69,.5)'};
-const TK={color:'#4e6180',font:{family:'Tajawal',size:11}};
+const TK={color:'#4e6180',font:{family:'Noto Sans Arabic',size:11}};
 
 function mkC(id,cfg){if(CH[id])CH[id].destroy();CH[id]=new Chart(document.getElementById(id).getContext('2d'),cfg);return CH[id];}
 
@@ -762,14 +778,14 @@ function buildDayChart(O){
   const{l,v}=grpDay(O);
   const t=DT;
   mkC('c-day',{type:t,data:{labels:l,datasets:[{label:'الربح',data:v,backgroundColor:t==='bar'?v.map(x=>x>=0?'rgba(0,229,187,.8)':'rgba(244,63,94,.8)'):'rgba(0,229,187,.1)',borderColor:'rgba(0,229,187,.9)',borderWidth:t==='line'?2:0,borderRadius:t==='bar'?6:0,fill:t==='line',tension:.4,pointRadius:t==='line'?3:0,pointBackgroundColor:'#00e5bb'}]},
-  options:{responsive:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' ربح: '+fmt(c.raw)+' ر.س'}}},scales:{x:{grid:GR,ticks:{...TK,maxTicksLimit:14}},y:{grid:GR,ticks:TK}}}});
+  options:{responsive:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' ربح: '+sarFmt(c.raw)}}},scales:{x:{grid:GR,ticks:{...TK,maxTicksLimit:14}},y:{grid:GR,ticks:TK}}}});
 }
 
 function buildPmChart(O){
   const m={};O.forEach(r=>{const l=pmLabel(r.pm);m[l]=(m[l]||0)+1;});
   const lbs=Object.keys(m),vs=lbs.map(k=>m[k]);
   mkC('c-pm',{type:'doughnut',data:{labels:lbs,datasets:[{data:vs,backgroundColor:PAL,borderWidth:0,hoverOffset:6}]},
-  options:{responsive:true,cutout:'65%',plugins:{legend:{position:'bottom',labels:{color:'#94a3b8',font:{family:'Tajawal',size:12},padding:12,boxWidth:12}}}}});
+  options:{responsive:true,cutout:'65%',plugins:{legend:{position:'bottom',labels:{color:'#94a3b8',font:{family:'Noto Sans Arabic',size:12},padding:12,boxWidth:12}}}}});
 }
 
 function buildMonChart(O){
@@ -778,34 +794,34 @@ function buildMonChart(O){
   const MN=['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
   const lbs=s.map(k=>{const[y,mo]=k.split('-');return MN[parseInt(mo)-1]+' '+y.slice(2);});
   mkC('c-mon',{type:'bar',data:{labels:lbs,datasets:[{data:s.map(k=>m[k]),backgroundColor:s.map(k=>m[k]>=0?'rgba(59,158,255,.8)':'rgba(244,63,94,.8)'),borderRadius:8,borderWidth:0}]},
-  options:{responsive:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' ربح: '+fmt(c.raw)+' ر.س'}}},scales:{x:{grid:GR,ticks:TK},y:{grid:GR,ticks:TK}}}});
+  options:{responsive:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' ربح: '+sarFmt(c.raw)}}},scales:{x:{grid:GR,ticks:TK},y:{grid:GR,ticks:TK}}}});
 }
 
 function buildCostChart(cogs,gw,fxF,ads){
   const items=[{l:'تكلفة البضاعة FX',v:cogs,c:'#f43f5e'},{l:'رسوم Salla',v:gw,c:'#f59e0b'},{l:'رسوم FX بطاقة',v:fxF,c:'#a78bfa'},{l:'Google Ads',v:ads,c:'#fbbc04'}].filter(x=>x.v>0);
   mkC('c-cost',{type:'doughnut',data:{labels:items.map(x=>x.l),datasets:[{data:items.map(x=>x.v),backgroundColor:items.map(x=>x.c),borderWidth:0,hoverOffset:6}]},
-  options:{responsive:true,cutout:'60%',plugins:{legend:{position:'bottom',labels:{color:'#94a3b8',font:{family:'Tajawal',size:11},padding:10,boxWidth:10}}}}});
+  options:{responsive:true,cutout:'60%',plugins:{legend:{position:'bottom',labels:{color:'#94a3b8',font:{family:'Noto Sans Arabic',size:11},padding:10,boxWidth:10}}}}});
 }
 
 function buildAdsMini(camps){
   const m={};camps.forEach(r=>{if(!r.ds)return;m[r.ds]=(m[r.ds]||0)+r.cost;});
   const s=Object.keys(m).sort();
   mkC('c-adsmini',{type:'bar',data:{labels:s,datasets:[{data:s.map(k=>m[k]),backgroundColor:'rgba(251,188,4,.75)',borderRadius:5,borderWidth:0}]},
-  options:{responsive:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' إنفاق: '+fmt(c.raw)+' ر.س'}}},scales:{x:{grid:GR,ticks:{...TK,maxTicksLimit:8}},y:{grid:GR,ticks:TK}}}});
+  options:{responsive:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' إنفاق: '+sarFmt(c.raw)}}},scales:{x:{grid:GR,ticks:{...TK,maxTicksLimit:8}},y:{grid:GR,ticks:TK}}}});
 }
 
 function buildAdsDetail(camps){
   const m={};camps.forEach(r=>{if(!r.ds)return;m[r.ds]=(m[r.ds]||0)+r.cost;});
   const s=Object.keys(m).sort();
   mkC('c-adsdet',{type:'line',data:{labels:s,datasets:[{label:'الإنفاق اليومي',data:s.map(k=>m[k]),borderColor:'#fbbc04',backgroundColor:'rgba(251,188,4,.12)',fill:true,tension:.4,pointRadius:4,pointBackgroundColor:'#fbbc04',borderWidth:2}]},
-  options:{responsive:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' إنفاق: '+fmt(c.raw)+' ر.س'}}},scales:{x:{grid:GR,ticks:{...TK,maxTicksLimit:10}},y:{grid:GR,ticks:TK}}}});
+  options:{responsive:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' إنفاق: '+sarFmt(c.raw)}}},scales:{x:{grid:GR,ticks:{...TK,maxTicksLimit:10}},y:{grid:GR,ticks:TK}}}});
 }
 
 function buildAdsCmp(camps){
   const m={};camps.forEach(r=>{let n=(r.desc||r.type||'أخرى').trim();if(n.length>22)n=n.slice(0,21)+'…';m[n]=(m[n]||0)+r.cost;});
   const entries=Object.entries(m).sort((a,b)=>b[1]-a[1]).slice(0,6);
   mkC('c-adscmp',{type:'doughnut',data:{labels:entries.map(e=>e[0]),datasets:[{data:entries.map(e=>e[1]),backgroundColor:PAL,borderWidth:0,hoverOffset:5}]},
-  options:{responsive:true,cutout:'55%',plugins:{legend:{position:'bottom',labels:{color:'#94a3b8',font:{family:'Tajawal',size:11},padding:10,boxWidth:10}}}}});
+  options:{responsive:true,cutout:'55%',plugins:{legend:{position:'bottom',labels:{color:'#94a3b8',font:{family:'Noto Sans Arabic',size:11},padding:10,boxWidth:10}}}}});
 }
 
 function buildCombined(O,camps){
@@ -816,7 +832,7 @@ function buildCombined(O,camps){
   mkC('c-comb',{type:'bar',data:{labels:all,datasets:[
     {label:'الربح الإجمالي',data:all.map(d=>pm[d]||0),backgroundColor:'rgba(0,229,187,.7)',borderRadius:5,borderWidth:0,order:2},
     {label:'إنفاق Ads',data:all.map(d=>am[d]||0),backgroundColor:'rgba(251,188,4,.7)',borderRadius:5,borderWidth:0,order:1}
-  ]},options:{responsive:true,plugins:{legend:{position:'bottom',labels:{color:'#94a3b8',font:{family:'Tajawal',size:12}}}},scales:{x:{grid:GR,ticks:{...TK,maxTicksLimit:14}},y:{grid:GR,ticks:TK}}}});
+  ]},options:{responsive:true,plugins:{legend:{position:'bottom',labels:{color:'#94a3b8',font:{family:'Noto Sans Arabic',size:12}}}},scales:{x:{grid:GR,ticks:{...TK,maxTicksLimit:14}},y:{grid:GR,ticks:TK}}}});
 }
 
 function buildPmBk(O){
@@ -825,7 +841,7 @@ function buildPmBk(O){
   const html=Object.entries(m).sort((a,b)=>b[1].rev-a[1].rev).map(([n,d],i)=>{
     const pct=tot?d.rev/tot*100:0;
     return `<div class="bki"><div class="bkl"><div class="bkd" style="background:${PAL[i%PAL.length]}"></div>${n}<span style="color:var(--text3);font-size:11px;"> (${d.c})</span></div>
-    <div class="bkr"><div class="bkv" style="color:${PAL[i%PAL.length]}">${fmt(d.rev)} ر.س</div><div class="bks">رسوم: ${fmt(d.f)} ر.س · ${pct.toFixed(0)}%</div>
+    <div class="bkr"><div class="bkv" style="color:${PAL[i%PAL.length]}">${sarFmt(d.rev)}</div><div class="bks">رسوم: ${sarFmt(d.f)} · ${pct.toFixed(0)}%</div>
     <div class="pbar"><div class="pfill" style="width:${pct}%;background:${PAL[i%PAL.length]}"></div></div></div></div>`;
   }).join('');
   document.getElementById('pmBk').innerHTML=html||'<div style="color:var(--text3);text-align:center;padding:20px">لا توجد بيانات</div>';
@@ -834,38 +850,34 @@ function buildPmBk(O){
 // ══════════════════════════════════════
 // TABLES
 // ══════════════════════════════════════
-function pCell(p){return `<span class="badge ${p>=0?'b-g':'b-r'}">${fmt(p)} ر.س</span>`;}
+function pCell(p){return `<span class="badge ${p>=0?'b-g':'b-r'}">${sarFmt(p)}</span>`;}
 function mCell(m){return `<span style="color:${m>=0?'var(--green)':'var(--red)'}">${m.toFixed(1)}%</span>`;}
 const emptyRow=(n)=>`<tr><td colspan="${n}" style="text-align:center;color:var(--text3);padding:30px">لا توجد بيانات في هذه الفترة</td></tr>`;
 
 function buildTables(O){
   const sorted=[...O].sort((a,b)=>(!a.date&&!b.date)?0:!a.date?1:!b.date?-1:b.date-a.date);
-  document.getElementById('tb-all').innerHTML=sorted.map((r,i)=>{
-    const noFX=!r.hasFX?`<span class="badge" style="background:rgba(245,158,11,.15);color:var(--accent3);margin-right:4px;" title="لا يوجد تطابق في FragranceX">⚠️ بلا FX</span>`:'';
-    return `<tr style="${!r.hasFX?'background:rgba(245,158,11,.04);':''}">
-    <td>${i+1}</td>
+  document.getElementById('tb-all').innerHTML=sorted.map((r,i)=>`<tr>
+    <td>${(i+1).toLocaleString('en-US')}</td>
     <td><span style="font-family:monospace;font-size:12px;color:var(--text3)">${r.orderId||'—'}</span></td>
     <td>${r.ds||'—'}</td>
     <td><span class="badge ${pmClass(r.pm)}">${pmLabel(r.pm)}</span></td>
-    <td>${fmt(r.total)}</td>
-    <td>${r.hasFX?r.fxUSD.toFixed(2):`<span style="color:var(--text3)">—</span>`}</td>
-    <td>${r.hasFX?fmt(r.fxSAR):`<span style="color:var(--text3)">—</span>`}</td>
-    <td>${fmt(r.gw)}</td>
-    <td>${r.hasFX?fmt(r.fxCard):`<span style="color:var(--text3)">—</span>`}</td>
-    <td>${noFX}${pCell(r.profit)}</td>
+    <td>${sarFmt(r.total)}</td>
+    <td>${r.fxUSD.toFixed(2)}</td>
+    <td>${sarFmt(r.fxSAR)}</td>
+    <td>${sarFmt(r.gw)}</td>
+    <td>${sarFmt(r.fxCard)}</td>
+    <td>${pCell(r.profit)}</td>
     <td>${mCell(r.margin)}</td>
-  </tr>`}).join('')||emptyRow(11);
+  </tr>`).join('')||emptyRow(11);
 
   const top=[...O].sort((a,b)=>b.profit-a.profit).slice(0,20);
   const low=[...O].sort((a,b)=>a.profit-b.profit).slice(0,20);
-  const rowS=(r,i)=>{
-    const noFX=!r.hasFX?`<span class="badge" style="background:rgba(245,158,11,.15);color:var(--accent3);">⚠️ بلا FX</span> `:'';
-    return `<tr><td>${i+1}</td>
+  const rowS=(r,i)=>`<tr>
+    <td>${(i+1).toLocaleString('en-US')}</td>
     <td><span style="font-family:monospace;font-size:12px;color:var(--text3)">${r.orderId||'—'}</span></td>
     <td>${r.ds||'—'}</td>
     <td><span class="badge ${pmClass(r.pm)}">${pmLabel(r.pm)}</span></td>
-    <td>${fmt(r.total)}</td><td>${noFX}${pCell(r.profit)}</td><td>${mCell(r.margin)}</td></tr>`;
-  };
+    <td>${sarFmt(r.total)}</td><td>${pCell(r.profit)}</td><td>${mCell(r.margin)}</td></tr>`;
   document.getElementById('tb-top').innerHTML=top.map(rowS).join('')||emptyRow(7);
   document.getElementById('tb-low').innerHTML=low.map(rowS).join('')||emptyRow(7);
 }
@@ -876,9 +888,9 @@ function buildAdsTable(A){
     <td>${r.ds||'—'}</td>
     <td><span class="badge b-camp">${r.type}</span></td>
     <td style="max-width:280px;overflow:hidden;text-overflow:ellipsis;">${r.desc||'—'}</td>
-    <td>${r.clicks?r.clicks.toLocaleString('ar-SA'):'—'}</td>
-    <td style="color:var(--ads);font-weight:700;">${fmt(r.cost)} ر.س</td>
-    <td style="color:var(--text2);">${fmt(r.bal)} ر.س</td>
+    <td>${r.clicks?r.clicks.toLocaleString('en-US'):'—'}</td>
+    <td style="color:var(--ads);font-weight:700;">${sarFmt(r.cost)}</td>
+    <td style="color:var(--text2);">${sarFmt(r.bal)}</td>
   </tr>`).join('')||emptyRow(6);
 }
 
