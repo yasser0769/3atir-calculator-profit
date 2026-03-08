@@ -346,13 +346,13 @@ tbody td:first-child{color:var(--text);font-weight:500;}
         <button class="itb" onclick="shItab('t-low',this)">الأقل ربحاً</button>
       </div>
       <div class="tpanel on" id="t-all">
-        <div class="tw"><table><thead><tr><th>#</th><th>التاريخ</th><th>طريقة الدفع</th><th>مبيعات ر.س</th><th>FX ($)</th><th>FX (ر.س)</th><th>رسوم بوابة</th><th>رسوم FX بطاقة</th><th>الربح</th><th>هامش%</th></tr></thead><tbody id="tb-all"></tbody></table></div>
+        <div class="tw"><table><thead><tr><th>#</th><th>رقم الطلب</th><th>التاريخ</th><th>طريقة الدفع</th><th>مبيعات ر.س</th><th>FX ($)</th><th>FX (ر.س)</th><th>رسوم بوابة</th><th>رسوم FX بطاقة</th><th>الربح</th><th>هامش%</th></tr></thead><tbody id="tb-all"></tbody></table></div>
       </div>
       <div class="tpanel" id="t-top">
-        <div class="tw"><table><thead><tr><th>#</th><th>التاريخ</th><th>طريقة الدفع</th><th>مبيعات ر.س</th><th>الربح</th><th>هامش%</th></tr></thead><tbody id="tb-top"></tbody></table></div>
+        <div class="tw"><table><thead><tr><th>#</th><th>رقم الطلب</th><th>التاريخ</th><th>طريقة الدفع</th><th>مبيعات ر.س</th><th>الربح</th><th>هامش%</th></tr></thead><tbody id="tb-top"></tbody></table></div>
       </div>
       <div class="tpanel" id="t-low">
-        <div class="tw"><table><thead><tr><th>#</th><th>التاريخ</th><th>طريقة الدفع</th><th>مبيعات ر.س</th><th>الربح</th><th>هامش%</th></tr></thead><tbody id="tb-low"></tbody></table></div>
+        <div class="tw"><table><thead><tr><th>#</th><th>رقم الطلب</th><th>التاريخ</th><th>طريقة الدفع</th><th>مبيعات ر.س</th><th>الربح</th><th>هامش%</th></tr></thead><tbody id="tb-low"></tbody></table></div>
       </div>
     </div>
   </div>
@@ -501,43 +501,50 @@ function parseSalla(){
   if(!SD) return [];
   const hi=findHeader(SD);
   const hdr=SD[hi].map(h=>(h||'').toString().trim());
+  const iId=fi(hdr,'رقم الطلب','ID Salla','Order ID','order_id');
   const iDt=fi(hdr,'تاريخ الطلب','Date','date');
   const iTot=fi(hdr,'إجمالي الطلب','مجموع السلة','المجموع الكلي','Total');
   const iPm=fi(hdr,'طريقة الدفع','Payment Method');
-  const iGw=fi(hdr,'رسوم بوابات','Payment Method Fees','عمولة الدفع');
+  const iGw=fi(hdr,'رسوم بوابات','عمولة الدفع','Payment Method Fees');
   const iNet=fi(hdr,'المبلغ الصافي','After payment fees','After Fees');
   const res=[];
   for(let i=hi+1;i<SD.length;i++){
     const r=SD[i]; if(!r||r.every(c=>!c)) continue;
     const tot=pN(iTot>=0?r[iTot]:0); if(!tot) continue;
+    const orderId=iId>=0?r[iId].toString().trim():'';
     const pm=iPm>=0?r[iPm]:'';
     let gw=pN(iGw>=0?r[iGw]:0); if(!gw) gw=tot*feeRate(pm);
     let net=pN(iNet>=0?r[iNet]:0); if(!net) net=tot-gw;
     const d=pDate(iDt>=0?r[iDt]:'');
-    res.push({date:d,ds:dStr(d),total:tot,pm,gw,net});
+    res.push({orderId,date:d,ds:dStr(d),total:tot,pm,gw,net});
   }
   return res;
 }
 
+// Returns a Map: extOrderId → {tot, card}
 function parseFX(){
-  if(!FD) return [];
+  if(!FD) return new Map();
   const hi=findHeader(FD);
   const hdr=FD[hi].map(h=>(h||'').toString().trim());
+  // Look for Ext Order ID column — exact FX export column name
+  const iExtId=fi(hdr,'Ext Order ID','ext_order_id','رقم الطلب','Order ID','order_id');
   const iSub=fi(hdr,'مجموع المشتريات','Subtotal','Sub Total');
   const iSh=fi(hdr,'الشحن','Shipping');
   const iTot=fi(hdr,'المجموع الكلي','Total','Grand');
   const iCard=fi(hdr,'رسوم بطاقتي','Credit card','الاجمالي بعد');
-  const res=[];
+  const map=new Map();
   for(let i=hi+1;i<FD.length;i++){
     const r=FD[i]; if(!r||r.every(c=>!c)) continue;
+    const extId=iExtId>=0?r[iExtId].toString().trim():'';
+    if(!extId) continue;
     const sub=pN(iSub>=0?r[iSub]:0);
     const sh=pN(iSh>=0?r[iSh]:0);
     const tot=pN(iTot>=0?r[iTot]:0)||sub+sh; if(!tot) continue;
     let card=pN(iCard>=0?r[iCard]:0);
     if(!card) card=tot*(CFG.fx/100);
-    res.push({tot,card});
+    map.set(extId,{tot,card});
   }
-  return res;
+  return map;
 }
 
 function parseAds(){
@@ -572,20 +579,25 @@ function parseAds(){
 }
 
 // ══════════════════════════════════════
-// BUILD ORDER ROWS
+// BUILD ORDER ROWS — matched by Order ID
 // ══════════════════════════════════════
+let UNMATCHED=[]; // Salla orders with no FX match
+
 function buildRows(){
   const sl=parseSalla();
-  const fl=parseFX();
+  const fxMap=parseFX();
   AR=parseAds();
-  OR=sl.map((s,i)=>{
-    const fx=fl[i]||{tot:0,card:0};
-    const fxSAR=fx.tot*CFG.usd;
-    const fxCard=fx.card*CFG.usd;
+  UNMATCHED=[];
+  OR=sl.map(s=>{
+    const fx=fxMap.get(s.orderId)||null;
+    if(!fx) UNMATCHED.push(s.orderId);
+    const fxSAR=fx?(fx.tot*CFG.usd):0;
+    const fxCard=fx?(fx.card*CFG.usd):0;
     const cost=fxSAR+fxCard;
     const profit=s.net-cost;
     const margin=s.total>0?profit/s.total*100:0;
-    return {...s,fxUSD:fx.tot,fxCardUSD:fx.card,fxSAR,fxCard,cost,profit,margin};
+    const hasFX=!!fx;
+    return {...s,fxUSD:fx?fx.tot:0,fxCardUSD:fx?fx.card:0,fxSAR,fxCard,cost,profit,margin,hasFX};
   });
 }
 
@@ -663,11 +675,34 @@ function render(){
     set('ak-days',adsDays.toString());
   }
 
-  // ALERT
+  // UNMATCHED WARNING BANNER
+  const unmatchedInFilter=OR.filter(r=>!r.hasFX&&fO.includes(r));
+  // also show global unmatched count
+  let warnHtml='';
+  if(UNMATCHED.length>0){
+    const ids=UNMATCHED.slice(0,8).join('، ');
+    const extra=UNMATCHED.length>8?` وغيرها (${UNMATCHED.length-8} أخرى)`:'';
+    warnHtml=`<div class="alert warn" style="flex-direction:column;align-items:flex-start;gap:6px;margin-bottom:12px;">
+      <div style="font-size:14px;font-weight:800;">⚠️ ${UNMATCHED.length} طلب سلة بدون مطابقة في FragranceX</div>
+      <div style="font-size:12px;opacity:.85;">هذه الطلبات تحسب <strong>بدون تكلفة FX</strong> — تحقق منها: <span style="font-family:monospace;direction:ltr;display:inline-block;">${ids}${extra}</span></div>
+      <div style="font-size:11px;opacity:.65;">تأكد أن عمود "Ext Order ID" في ملف FragranceX يحتوي على رقم الطلب الصحيح</div>
+    </div>`;
+  }
+
+  // PROFIT MARGIN ALERT
   const al=document.getElementById('alertDiv');
-  if(O.length&&netM<10){al.style.display='flex';al.className='alert bad';al.innerHTML='⚠️ تحذير: هامش الربح الصافي أقل من 10% ('+netM.toFixed(1)+'%) — راجع استراتيجية التسعير أو اخفض التكاليف';}
-  else if(O.length&&netM>30){al.style.display='flex';al.className='alert good';al.innerHTML='🎉 أداء ممتاز! هامش الربح ('+netM.toFixed(1)+'%) — استمر في هذا المستوى';}
-  else{al.style.display='none';}
+  if(O.length&&netM<10){
+    al.style.display='block';
+    al.innerHTML=warnHtml+`<div class="alert bad">⚠️ تحذير: هامش الربح الصافي أقل من 10% (${netM.toFixed(1)}%) — راجع استراتيجية التسعير أو اخفض التكاليف</div>`;
+  } else if(O.length&&netM>30){
+    al.style.display='block';
+    al.innerHTML=warnHtml+`<div class="alert good">🎉 أداء ممتاز! هامش الربح (${netM.toFixed(1)}%) — استمر في هذا المستوى</div>`;
+  } else if(warnHtml){
+    al.style.display='block';
+    al.innerHTML=warnHtml;
+  } else {
+    al.style.display='none';
+  }
 
   // INSIGHTS
   const best=bestDay(O);
@@ -799,21 +834,34 @@ const emptyRow=(n)=>`<tr><td colspan="${n}" style="text-align:center;color:var(-
 
 function buildTables(O){
   const sorted=[...O].sort((a,b)=>(!a.date&&!b.date)?0:!a.date?1:!b.date?-1:b.date-a.date);
-  document.getElementById('tb-all').innerHTML=sorted.map((r,i)=>`<tr>
-    <td>${i+1}</td><td>${r.ds||'—'}</td>
+  document.getElementById('tb-all').innerHTML=sorted.map((r,i)=>{
+    const noFX=!r.hasFX?`<span class="badge" style="background:rgba(245,158,11,.15);color:var(--accent3);margin-right:4px;" title="لا يوجد تطابق في FragranceX">⚠️ بلا FX</span>`:'';
+    return `<tr style="${!r.hasFX?'background:rgba(245,158,11,.04);':''}">
+    <td>${i+1}</td>
+    <td><span style="font-family:monospace;font-size:12px;color:var(--text3)">${r.orderId||'—'}</span></td>
+    <td>${r.ds||'—'}</td>
     <td><span class="badge ${pmClass(r.pm)}">${pmLabel(r.pm)}</span></td>
-    <td>${fmt(r.total)}</td><td>${r.fxUSD.toFixed(2)}</td><td>${fmt(r.fxSAR)}</td>
-    <td>${fmt(r.gw)}</td><td>${fmt(r.fxCard)}</td>
-    <td>${pCell(r.profit)}</td><td>${mCell(r.margin)}</td>
-  </tr>`).join('')||emptyRow(10);
+    <td>${fmt(r.total)}</td>
+    <td>${r.hasFX?r.fxUSD.toFixed(2):`<span style="color:var(--text3)">—</span>`}</td>
+    <td>${r.hasFX?fmt(r.fxSAR):`<span style="color:var(--text3)">—</span>`}</td>
+    <td>${fmt(r.gw)}</td>
+    <td>${r.hasFX?fmt(r.fxCard):`<span style="color:var(--text3)">—</span>`}</td>
+    <td>${noFX}${pCell(r.profit)}</td>
+    <td>${mCell(r.margin)}</td>
+  </tr>`}).join('')||emptyRow(11);
 
   const top=[...O].sort((a,b)=>b.profit-a.profit).slice(0,20);
   const low=[...O].sort((a,b)=>a.profit-b.profit).slice(0,20);
-  const rowS=(r,i)=>`<tr><td>${i+1}</td><td>${r.ds||'—'}</td>
+  const rowS=(r,i)=>{
+    const noFX=!r.hasFX?`<span class="badge" style="background:rgba(245,158,11,.15);color:var(--accent3);">⚠️ بلا FX</span> `:'';
+    return `<tr><td>${i+1}</td>
+    <td><span style="font-family:monospace;font-size:12px;color:var(--text3)">${r.orderId||'—'}</span></td>
+    <td>${r.ds||'—'}</td>
     <td><span class="badge ${pmClass(r.pm)}">${pmLabel(r.pm)}</span></td>
-    <td>${fmt(r.total)}</td><td>${pCell(r.profit)}</td><td>${mCell(r.margin)}</td></tr>`;
-  document.getElementById('tb-top').innerHTML=top.map(rowS).join('')||emptyRow(6);
-  document.getElementById('tb-low').innerHTML=low.map(rowS).join('')||emptyRow(6);
+    <td>${fmt(r.total)}</td><td>${noFX}${pCell(r.profit)}</td><td>${mCell(r.margin)}</td></tr>`;
+  };
+  document.getElementById('tb-top').innerHTML=top.map(rowS).join('')||emptyRow(7);
+  document.getElementById('tb-low').innerHTML=low.map(rowS).join('')||emptyRow(7);
 }
 
 function buildAdsTable(A){
