@@ -507,9 +507,15 @@ function parseSalla(){
   const iPm=fi(hdr,'طريقة الدفع','Payment Method');
   const iGw=fi(hdr,'رسوم بوابات','عمولة الدفع','Payment Method Fees');
   const iNet=fi(hdr,'المبلغ الصافي','After payment fees','After Fees');
+  const iStatus=fi(hdr,'حالة الطلب','Status','status','الحالة');
   const res=[];
   for(let i=hi+1;i<SD.length;i++){
     const r=SD[i]; if(!r||r.every(c=>!c)) continue;
+    // تجاهل الطلبات الملغاة
+    if(iStatus>=0){
+      const st=(r[iStatus]||'').toString().trim();
+      if(st.includes('ملغ')||st.toLowerCase().includes('cancel')) continue;
+    }
     const tot=pN(iTot>=0?r[iTot]:0); if(!tot) continue;
     const orderId=iId>=0?r[iId].toString().trim():'';
     const pm=iPm>=0?r[iPm]:'';
