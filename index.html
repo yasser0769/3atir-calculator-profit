@@ -214,7 +214,8 @@ tbody td:first-child{color:var(--text);font-weight:500;}
   </div>
   <div class="ms"><div class="mst">📊 أخرى</div>
     <div class="mr"><span class="ml">ضريبة القيمة المضافة</span><div class="mw"><input class="mi" id="s_vat" type="number" step="0.01" value="15"><span class="mu">%</span></div></div>
-    <div class="mr"><span class="ml">تكلفة الشحن المحلي</span><div class="mw"><input class="mi" id="s_ship" type="number" step="0.01" value="32"><span class="mu">ر.س</span></div></div>
+    <div class="mr"><span class="ml">تكلفة الشحن المحلي</span><div class="mw"><input class="mi" id="s_ship" type="number" step="0.01" value="32"><span class="mu">ريال</span></div></div>
+    <div class="mr"><span class="ml">اشتراك سلة الشهري</span><div class="mw"><input class="mi" id="s_salla_m" type="number" step="1" value="299"><span class="mu">ريال</span></div></div>
   </div>
   <button class="btn btn-primary" style="width:100%;justify-content:center;padding:13px;" onclick="saveSets()">💾 حفظ وإعادة الحساب</button>
 </div>
@@ -298,7 +299,7 @@ tbody td:first-child{color:var(--text);font-weight:500;}
     <div class="st">💰 ملخص مالي شامل</div>
     <div class="krow k5">
       <div class="kc cb"><div class="kg"></div><div class="kl">إجمالي المبيعات</div><div class="kv" id="kv-rev">—</div><div class="ks">إيرادات المتجر</div></div>
-      <div class="kc cr"><div class="kg"></div><div class="kl">تكلفة البضاعة</div><div class="kv" id="kv-cogs">—</div><div class="ks">FX بالريال + رسوم</div></div>
+      <div class="kc cr"><div class="kg"></div><div class="kl">تكلفة البضاعة</div><div class="kv" id="kv-cogs">—</div><div class="ks">FX + اشتراك سلة</div></div>
       <div class="kc cads"><div class="kg"></div><div class="kl">إنفاق Google Ads</div><div class="kv" id="kv-ads">—</div><div class="ks" id="ks-ads">—</div></div>
       <div class="kc ca"><div class="kg"></div><div class="kl">رسوم بوابات الدفع</div><div class="kv" id="kv-gw">—</div><div class="ks">سلة + بطاقة الائتمانية FX</div></div>
       <div class="kc cg"><div class="kg"></div><div class="kl">صافي الربح</div><div class="kv" id="kv-net">—</div><div class="ks">بعد جميع التكاليف</div></div>
@@ -406,7 +407,7 @@ let fO=[],fA=[]; // filtered
 let DT='bar';
 let CH={};
 
-let CFG={mada:1.7,credit:2.6,tabby:5.17,tamara:2.95,apple:2.6,cod:0,stc:1.7,fx:2.3,usd:3.75,vat:15,ship:32};
+let CFG={mada:1.7,credit:2.6,tabby:5.17,tamara:2.95,apple:2.6,cod:0,stc:1.7,fx:2.3,usd:3.75,vat:15,ship:32,salla_monthly:299};
 const PAL=['#00e5bb','#3b9eff','#f59e0b','#a78bfa','#f43f5e','#22c55e','#fb923c','#fbbc04','#34d399'];
 
 // ══════════════════════════════════════
@@ -455,8 +456,7 @@ const dStr=d=>d&&!isNaN(d)?d.toISOString().split('T')[0]:'';
 const fmt=(n,d=1)=>Number(n||0).toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:d});
 // Saudi Riyal symbol — U+1ECAF (Unicode 16, supported Chrome 119+, Safari 17.4+)
 // Fallback gracefully — we test support and use it
-const SAR_SYM=(()=>{try{return String.fromCodePoint(0x1ECAF);}catch{return 'ر.س';}})();
-const sarFmt=(n,d=1)=>fmt(n,d)+'\u202F'+SAR_SYM;
+const sarFmt=(n,d=1)=>fmt(n,d)+' ريال';
 
 function feeRate(m){
   const s=(m||'').toLowerCase();
@@ -608,19 +608,26 @@ function buildRows(){
   AR=parseAds();
   UNMATCHED=[];
   OR=[];
+  // توزيع رسوم سلة الشهرية على عدد الطلبات المطابقة
+  // نحسب الطلبات المطابقة أولاً لمعرفة عدد الأيام
+  const matched=sl.filter(s=>fxMap.has(s.orderId));
+  // نجمع الأيام الفريدة لتحديد عدد أيام النشاط في الشهر المعني
+  const uniqueDays=new Set(matched.map(s=>s.ds).filter(Boolean)).size;
+  const daysInPeriod=uniqueDays||30;
+  const sallaDaily=CFG.salla_monthly/30; // 299÷30 يومياً
+  const sallaPerOrder=matched.length>0?(CFG.salla_monthly/daysInPeriod)/((matched.length/daysInPeriod)||1):0;
+
   for(const s of sl){
     const fx=fxMap.get(s.orderId)||null;
-    if(!fx){
-      // No FX match → only show in warning, don't include in OR calculations
-      UNMATCHED.push(s.orderId);
-      continue; // skip — excluded entirely from profit calculations
-    }
+    if(!fx){ UNMATCHED.push(s.orderId); continue; }
     const fxSAR=fx.tot*CFG.usd;
     const fxCard=fx.card*CFG.usd;
-    const cost=fxSAR+fxCard;
+    const sallaCost=sallaPerOrder; // حصة هذا الطلب من رسوم سلة
+    const cost=fxSAR+fxCard+sallaCost;
     const profit=s.net-cost;
     const margin=s.total>0?profit/s.total*100:0;
-    OR.push({...s,fxUSD:fx.tot,fxSub:fx.sub,fxTax:fx.tax,fxShip:fx.ship,fxCardUSD:fx.card,fxSAR,fxCard,cost,profit,margin,hasFX:true});
+    OR.push({...s,fxUSD:fx.tot,fxSub:fx.sub,fxTax:fx.tax,fxShip:fx.ship,fxCardUSD:fx.card,
+             fxSAR,fxCard,sallaCost,cost,profit,margin,hasFX:true});
   }
 }
 
@@ -661,9 +668,10 @@ function render(){
   const camps=A.filter(r=>r.type.toLowerCase().includes('campaign'));
 
   const rev=O.reduce((s,r)=>s+r.total,0);
-  const cogs=O.reduce((s,r)=>s+r.cost,0);
+  const cogs=O.reduce((s,r)=>s+r.fxSAR,0);
   const gwF=O.reduce((s,r)=>s+r.gw,0);
   const fxF=O.reduce((s,r)=>s+r.fxCard,0);
+  const sallaSub=O.reduce((s,r)=>s+r.sallaCost,0);
   const grossP=O.reduce((s,r)=>s+r.profit,0);
   const adsSpend=camps.reduce((s,r)=>s+r.cost,0);
   const netP=grossP-adsSpend;
@@ -678,7 +686,7 @@ function render(){
 
   // KPIs
   set('kv-rev',sarFmt(rev));
-  set('kv-cogs',sarFmt(cogs));
+  set('kv-cogs',sarFmt(cogs+sallaSub));
   set('kv-ads',AD?sarFmt(adsSpend):'—');
   set('ks-ads',AD?camps.length+' يوم نشاط':'لم يُرفع ملف Ads');
   set('kv-gw',sarFmt(gwF+fxF));
@@ -739,7 +747,7 @@ function render(){
   buildDayChart(O);
   buildPmChart(O);
   buildMonChart(O);
-  buildCostChart(cogs,gwF,fxF,adsSpend);
+  buildCostChart(cogs,gwF,fxF,adsSpend,sallaSub);
   buildPmBk(O);
   buildAdsMini(camps);
   buildAdsDetail(camps);
@@ -796,8 +804,14 @@ function buildMonChart(O){
   options:{responsive:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' ربح: '+sarFmt(c.raw)}}},scales:{x:{grid:GR,ticks:TK},y:{grid:GR,ticks:TK}}}});
 }
 
-function buildCostChart(cogs,gw,fxF,ads){
-  const items=[{l:'تكلفة البضاعة FX',v:cogs,c:'#f43f5e'},{l:'رسوم Salla',v:gw,c:'#f59e0b'},{l:'رسوم FX بطاقة',v:fxF,c:'#a78bfa'},{l:'Google Ads',v:ads,c:'#fbbc04'}].filter(x=>x.v>0);
+function buildCostChart(cogs,gw,fxF,ads,sallaSub){
+  const items=[
+    {l:'تكلفة البضاعة FX',v:cogs,c:'#f43f5e'},
+    {l:'رسوم Salla',v:gw,c:'#f59e0b'},
+    {l:'بطاقة ائتمانية FX',v:fxF,c:'#a78bfa'},
+    {l:'Google Ads',v:ads,c:'#fbbc04'},
+    {l:'اشتراك سلة الشهري',v:sallaSub||0,c:'#3b9eff'},
+  ].filter(x=>x.v>0);
   mkC('c-cost',{type:'doughnut',data:{labels:items.map(x=>x.l),datasets:[{data:items.map(x=>x.v),backgroundColor:items.map(x=>x.c),borderWidth:0,hoverOffset:6}]},
   options:{responsive:true,cutout:'60%',plugins:{legend:{position:'bottom',labels:{color:'#94a3b8',font:{family:'Noto Sans Arabic',size:11},padding:10,boxWidth:10}}}}});
 }
@@ -933,7 +947,7 @@ function shItab(id,btn){
 // ══════════════════════════════════════
 // SETTINGS
 // ══════════════════════════════════════
-const SMAP={mada:'s_mada',credit:'s_credit',tabby:'s_tabby',tamara:'s_tamara',apple:'s_apple',cod:'s_cod',stc:'s_stc',fx:'s_fx',usd:'s_usd',vat:'s_vat',ship:'s_ship'};
+const SMAP={mada:'s_mada',credit:'s_credit',tabby:'s_tabby',tamara:'s_tamara',apple:'s_apple',cod:'s_cod',stc:'s_stc',fx:'s_fx',usd:'s_usd',vat:'s_vat',ship:'s_ship',salla_monthly:'s_salla_m'};
 function openSets(){Object.entries(SMAP).forEach(([k,id])=>{const el=document.getElementById(id);if(el)el.value=CFG[k];});document.getElementById('setModal').classList.add('open');}
 function closeSets(){document.getElementById('setModal').classList.remove('open');}
 function saveSets(){
