@@ -225,7 +225,7 @@ tbody td:first-child{color:var(--text);font-weight:500;}
 <div class="header">
   <div class="logo">
     <div class="logo-mark">ع</div>
-    <div><div class="logo-name">عاطر داشبورد</div><div class="logo-tag">حاسبة الأرباح · 3atir.co</div></div>
+    <div><div class="logo-name">عاطر داشبورد</div><div class="logo-tag">حاسبة الأرباح · Jumanah Store</div></div>
   </div>
   <div class="hdr">
     <button class="btn btn-ghost" onclick="openSets()">⚙️ إعدادات</button>
@@ -510,7 +510,8 @@ function parseSalla(){
   const hdr=SD[hi].map(h=>(h||'').toString().trim());
   const iId=fi(hdr,'رقم الطلب','ID Salla','Order ID','order_id');
   const iDt=fi(hdr,'تاريخ الطلب','Date','date');
-  const iTot=fi(hdr,'إجمالي الطلب','مجموع السلة','المجموع الكلي','Total');
+  // "إجمالي الطلب" = السلة + الشحن — هذا هو المبلغ الكلي الصحيح
+  const iTot=fi(hdr,'إجمالي الطلب');
   const iPm=fi(hdr,'طريقة الدفع','Payment Method');
   const iGw=fi(hdr,'رسوم بوابات','عمولة الدفع','Payment Method Fees');
   const iNet=fi(hdr,'المبلغ الصافي','After payment fees','After Fees');
