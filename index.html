@@ -711,7 +711,6 @@ function render(){
   }
 
   // INSIGHTS
-  const avgProfit=O.length?grossP/O.length:0;
   const best=bestDay(O);
   set('igrid',`
     <div class="ibox"><div class="iico">💵</div><div><div class="ilbl">متوسط الربح / طلب</div><div class="ival">${sarFmt(avgProfit)}</div></div></div>
